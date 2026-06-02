@@ -84,11 +84,17 @@ app.get("/raw/lua/:id/download", async (req, res) => {
   const { id } = req.params;
   const userAgent = (req.headers["user-agent"] || "").toLowerCase();
 
-  // Block browser requests — only allow Roblox executors / non-browser clients
-  const browserSignals = ["mozilla", "chrome", "safari", "edge"];
+  // Block browser requests — only allow Roblox / non-browser clients.
+  // Roblox HttpService sends User-Agents like:
+  //   "Roblox/WinInet"  |  "RobloxApp/..."  |  "" (empty)
+  // Browsers always send mozilla/chrome/safari/edge.
+  const browserSignals = ["mozilla", "chrome", "safari", "edge", "gecko", "webkit"];
   const isBrowser = browserSignals.some((signal) => userAgent.includes(signal));
 
-  if (isBrowser) {
+  // Allow if: no UA, or UA contains "roblox", or UA has no browser signals
+  const isAllowed = !isBrowser || userAgent.includes("roblox");
+
+  if (!isAllowed) {
     return res.status(404).send("Not Found");
   }
 
