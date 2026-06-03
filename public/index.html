@@ -233,7 +233,7 @@
     textarea:focus {
       background: rgba(255,255,255,0.01);
     }
-
+    
     /* ── Footer bar ───────────────────────────────────────────── */
     .card-footer {
       padding: 14px 16px;
@@ -418,6 +418,7 @@
 
     .error-msg.visible { display: block; }
 
+    
     /* ── Info cards row ───────────────────────────────────────── */
     .info-row {
       margin-top: 32px;
@@ -647,7 +648,7 @@ print('Hello, ' .. lp.Name)"
 
     <!-- Result Panel -->
     <div class="result-panel" id="resultPanel">
-      <div class="result-label">Script uploaded — link ready</div>
+      <div class="result-label">Script uploaded – ready to execute</div>
       <div class="link-row">
         <input class="link-input" id="linkOutput" type="text" readonly />
         <button class="btn-copy" id="copyBtn">
@@ -656,7 +657,8 @@ print('Hello, ' .. lp.Name)"
         </button>
       </div>
       <div class="usage-note">
-        Use <code>loadstring(game:HttpGet("&lt;link&gt;"))()</code> in your executor. Direct browser access returns 404.
+        Paste this command into your Roblox executor.<br>
+        Direct browser access returns <strong style="color:var(--red)">404</strong> – scripts stay hidden.
       </div>
     </div>
 
@@ -689,10 +691,9 @@ print('Hello, ' .. lp.Name)"
         </div>
         <div class="section-body">
           <div class="step"><div class="step-num">1</div><div class="step-text">Paste your Roblox Lua script into the editor above.</div></div>
-          <div class="step"><div class="step-num">2</div><div class="step-text">Click <strong style="color:#fff">Upload Script</strong> to save it to the server.</div></div>
-          <div class="step"><div class="step-num">3</div><div class="step-text">Copy the generated link shown after the upload.</div></div>
-          <div class="step"><div class="step-num">4</div><div class="step-text">In your Roblox executor, run:<br><code>loadstring(game:HttpGet("YOUR_LINK"))()</code></div></div>
-          <div class="step"><div class="step-num">5</div><div class="step-text">Opening the link in a browser returns <strong style="color:var(--red)">404</strong> &mdash; intentional for security.</div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-text">Click <strong style="color:#fff">Upload Script</strong> – it will be saved instantly.</div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-text">Copy the <code>loadstring(...)</code> command shown below.</div></div>
+          <div class="step"><div class="step-num">4</div><div class="step-text">In your Roblox executor, paste and run the command.</div></div>
         </div>
       </div>
 
@@ -705,11 +706,11 @@ print('Hello, ' .. lp.Name)"
           <span class="s-title">About LuaBin</span>
         </div>
         <div class="section-body">
-          <div class="about-point">Store and host your Roblox Lua scripts in the cloud &mdash; no file sharing needed.</div>
-          <div class="about-point">Each script gets a unique 8-character link that works only from Roblox executors.</div>
-          <div class="about-point">Browser access is blocked by default to keep your scripts hidden from public view.</div>
-          <div class="about-point">Scripts are stored securely in Supabase and served with no-cache headers so updates apply instantly.</div>
-          <div class="about-point">No account required &mdash; just paste, upload, and use.</div>
+          <div class="about-point">Store and host your Roblox Lua scripts in the cloud – no file sharing needed.</div>
+          <div class="about-point">Each script gets a unique 8‑character link that only works from Roblox executors.</div>
+          <div class="about-point">Browser access is blocked (404) to keep your scripts private.</div>
+          <div class="about-point">Scripts are stored securely in Supabase and served with no‑cache headers.</div>
+          <div class="about-point">No account required – just paste, upload, and run.</div>
         </div>
       </div>
 
@@ -749,7 +750,7 @@ print('Hello, ' .. lp.Name)"
 
     <footer>LuaBin &mdash; Created by Sttar Albiola &nbsp;&middot;&nbsp; For educational &amp; legitimate Roblox development use only.</footer>
   </div>
-
+  
   <script>
     const codeInput   = document.getElementById('codeInput');
     const uploadBtn   = document.getElementById('uploadBtn');
@@ -818,8 +819,11 @@ print('Hello, ' .. lp.Name)"
           throw new Error(data.error || 'Upload failed.');
         }
 
-        const fullUrl = `${window.location.origin}${data.url}`;
-        linkOutput.value = fullUrl;
+        // Build the full raw URL and then wrap it in loadstring
+        const rawUrl = `${window.location.origin}${data.url}`;
+        const loadstringCmd = `loadstring(game:HttpGet("${rawUrl}"))()`;
+        
+        linkOutput.value = loadstringCmd;
         resultPanel.classList.add('visible');
         linkOutput.select();
       } catch (err) {
