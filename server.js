@@ -38,6 +38,9 @@ function supabaseHeaders() {
   };
 }
 
+// ── API KEY CONFIGURATION ───────────────────────────────────────────────────
+const API_KEY = "sttaralbiola";
+
 // ── Custom Access Denied Page for Browsers ─────────────────────────────────
 function getAccessDeniedPage() {
   return `<!DOCTYPE html>
@@ -131,23 +134,20 @@ function getAccessDeniedPage() {
 // ── Check if request is from browser or executor ───────────────────────────
 function isBrowserRequest(userAgent) {
   const ua = userAgent.toLowerCase();
-  // Block these browser signatures
   const browserSignals = ["mozilla", "chrome", "safari", "edge", "webkit", "firefox", "opera", "brave"];
-  // Allow these executor signatures (Roblox and common executors)
-  const executorSignals = ["roblox", "krnl", "synapse", "delta", "script-ware", "scriptware", "electron", "celery", "oxygen", "fluxus"];
+  const executorSignals = ["roblox", "krnl", "synapse", "delta", "scriptware", "fluxus", "electron", "celery", "oxygen"];
   
   const isBrowser = browserSignals.some(signal => ua.includes(signal));
   const isExecutor = executorSignals.some(signal => ua.includes(signal));
   
-  // If empty user agent or clearly an executor, allow
   if (ua.length === 0 || isExecutor) {
-    return false; // NOT a browser
+    return false;
   }
   
   return isBrowser && !isExecutor;
 }
 
-// ── POST /api/upload ─────────────────────────────────────────────────────────
+// ── WEB: Upload script (for website) ────────────────────────────────────────
 app.post("/api/upload", async (req, res) => {
   const { code } = req.body;
 
@@ -182,18 +182,184 @@ app.post("/api/upload", async (req, res) => {
   }
 });
 
-// ── GET /raw/lua/:id/download ────────────────────────────────────────────────
+// ── API: Upload script via API (for Discord/Telegram bots) ─────────────────
+app.post("/api/v1/upload", async (req, res) => {
+  const { code, api_key } = req.body;
+
+  if (!api_key || api_key !== API_KEY) {
+    return res.status(401).json({ 
+      success: false, 
+      error: "Invalid API key. Get lost 🤡" 
+    });
+  }
+
+  if (!code || typeof code !== "string" || code.trim().length === 0) {
+    return res.status(400).json({ 
+      success: false, 
+      error: "No code provided." 
+    });
+  }
+
+  const id = generateId(8);
+  const endpoint = `${SUPABASE_URL}/rest/v1/scripts`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        ...supabaseHeaders(),
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ id, code: code.trim() }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error("Supabase insert error:", response.status, errorBody);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to save script." 
+      });
+    }
+
+    const rawUrl = `/raw/lua/${id}/download`;
+    const fullUrl = `https://${req.get("host")}${rawUrl}`;
+    const loadstringCmd = `loadstring(game:HttpGet("${fullUrl}"))()`;
+
+    return res.status(200).json({
+      success: true,
+      id: id,
+      url: fullUrl,
+      loadstring: loadstringCmd
+    });
+  } catch (err) {
+    console.error("Unexpected upload error:", err);
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal server error." 
+    });
+  }
+});
+
+// ── API: Get script info (for bots) ────────────────────────────────────────
+app.get("/api/v1/script/:id", async (req, res) => {
+  const { id } = req.params;
+  const { api_key } = req.query;
+
+  if (!api_key || api_key !== API_KEY) {
+    return res.status(401).json({ 
+      success: false, 
+      error: "Invalid API key." 
+    });
+  }
+
+  if (!/^[A-Za-z0-9]{8}$/.test(id)) {
+    return res.status(400).json({ 
+      success: false, 
+      error: "Invalid script ID format." 
+    });
+  }
+
+  const endpoint = `${SUPABASE_URL}/rest/v1/scripts?id=eq.${encodeURIComponent(id)}&select=code&limit=1`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: supabaseHeaders(),
+    });
+
+    if (!response.ok) {
+      return res.status(500).json({ 
+        success: false, 
+        error: "Database error." 
+      });
+    }
+
+    const rows = await response.json();
+
+    if (!rows || rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: "Script not found." 
+      });
+    }
+
+    const fullUrl = `https://${req.get("host")}/raw/lua/${id}/download`;
+    const loadstringCmd = `loadstring(game:HttpGet("${fullUrl}"))()`;
+
+    return res.status(200).json({
+      success: true,
+      id: id,
+      url: fullUrl,
+      loadstring: loadstringCmd,
+      code_length: rows[0].code.length
+    });
+  } catch (err) {
+    console.error("Error fetching script:", err);
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal server error." 
+    });
+  }
+});
+
+// ── API: Delete script (optional) ──────────────────────────────────────────
+app.delete("/api/v1/script/:id", async (req, res) => {
+  const { id } = req.params;
+  const { api_key } = req.query;
+
+  if (!api_key || api_key !== API_KEY) {
+    return res.status(401).json({ 
+      success: false, 
+      error: "Invalid API key." 
+    });
+  }
+
+  if (!/^[A-Za-z0-9]{8}$/.test(id)) {
+    return res.status(400).json({ 
+      success: false, 
+      error: "Invalid script ID format." 
+    });
+  }
+
+  const endpoint = `${SUPABASE_URL}/rest/v1/scripts?id=eq.${encodeURIComponent(id)}`;
+
+  try {
+    const response = await fetch(endpoint, {
+      method: "DELETE",
+      headers: supabaseHeaders(),
+    });
+
+    if (!response.ok) {
+      return res.status(500).json({ 
+        success: false, 
+        error: "Failed to delete script." 
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Script ${id} deleted successfully.`
+    });
+  } catch (err) {
+    console.error("Error deleting script:", err);
+    return res.status(500).json({ 
+      success: false, 
+      error: "Internal server error." 
+    });
+  }
+});
+
+// ── GET /raw/lua/:id/download (for Roblox executors) ────────────────────────
 app.get("/raw/lua/:id/download", async (req, res) => {
   const { id } = req.params;
   const userAgent = req.headers["user-agent"] || "";
   
-  // Check if browser (block) or executor (allow)
   if (isBrowserRequest(userAgent)) {
-    console.log(`🚫 Blocked browser request for script: ${id} - UA: ${userAgent.substring(0, 100)}`);
+    console.log(`🚫 Blocked browser request for script: ${id}`);
     return res.status(404).type("text/html").send(getAccessDeniedPage());
   }
 
-  // Validate ID format (8 alphanumeric characters)
   if (!/^[A-Za-z0-9]{8}$/.test(id)) {
     return res.status(404).send("Not Found");
   }
@@ -217,7 +383,6 @@ app.get("/raw/lua/:id/download", async (req, res) => {
       return res.status(404).send("Not Found");
     }
 
-    // Return raw Lua code (no HTML wrapper)
     res.set({
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-cache, no-store, must-revalidate",
@@ -239,6 +404,11 @@ app.get("*", (req, res) => {
 // ── Start ───────────────────────────────────────────────────────────────────
 app.listen(PORT, () => {
   console.log(`🚀  Roblox LuaBin running at http://localhost:${PORT}`);
+  console.log(`✅ API Key: ${API_KEY}`);
   console.log(`✅ Allowed executors: Roblox, Krnl, Synapse, Delta, ScriptWare, Fluxus, Electron, Celery, Oxygen`);
   console.log(`🚫 Browsers are blocked with funny page`);
+  console.log(`📡 API Endpoints:`);
+  console.log(`   POST   /api/v1/upload     - Upload script`);
+  console.log(`   GET    /api/v1/script/:id - Get script info`);
+  console.log(`   DELETE /api/v1/script/:id - Delete script`);
 });
