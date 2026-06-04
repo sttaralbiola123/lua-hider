@@ -356,8 +356,8 @@ app.get("/raw/lua/:id/download", async (req, res) => {
   const userAgent = req.headers["user-agent"] || "";
   
   if (isBrowserRequest(userAgent)) {
-    console.log(`🚫 Blocked browser request for script: ${id}`);
-    return res.status(404).type("text/html").send(getAccessDeniedPage());
+    console.log(`🎵 Rickrolled browser request for script: ${id}`);
+    return res.redirect("https://youtu.be/QDia3e12czc?si=JVY5ACfS-fa3kY_T");
   }
 
   if (!/^[A-Za-z0-9]{8}$/.test(id)) {
