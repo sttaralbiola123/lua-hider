@@ -573,6 +573,266 @@
     .credit-val a { color: var(--accent2); text-decoration: none; }
     .credit-val a:hover { text-decoration: underline; }
 
+    /* ── AI Panel ─────────────────────────────────────────────── */
+    .ai-panel {
+      margin-top: 16px;
+      width: 100%;
+      max-width: 760px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease 0.15s both;
+    }
+
+    .ai-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .ai-panel-header:hover { background: rgba(255,255,255,0.04); }
+
+    .ai-badge {
+      padding: 2px 8px;
+      background: rgba(167,139,250,0.15);
+      border: 1px solid rgba(167,139,250,0.35);
+      border-radius: 3px;
+      font-size: 11px;
+      color: #a78bfa;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .ai-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .ai-panel-desc {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-left: 4px;
+    }
+
+    .ai-chevron {
+      margin-left: auto;
+      color: var(--text-dim);
+      transition: transform 0.2s ease;
+    }
+
+    .ai-chevron.open { transform: rotate(180deg); }
+
+    .ai-panel-body {
+      display: none;
+      padding: 16px;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ai-panel-body.open { display: flex; }
+
+    /* Action buttons row */
+    .ai-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .ai-action-btn {
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-hi);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 12px;
+      font-family: var(--mono);
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .ai-action-btn:hover {
+      border-color: #a78bfa;
+      background: rgba(167,139,250,0.08);
+      color: #fff;
+    }
+
+    .ai-action-btn .ai-btn-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .ai-action-btn .ai-btn-text { line-height: 1.4; }
+    .ai-action-btn .ai-btn-label { font-weight: 700; display: block; font-size: 12px; }
+    .ai-action-btn .ai-btn-sub { font-size: 10px; color: var(--text-dim); display: block; margin-top: 1px; }
+
+    /* Chat area */
+    .ai-chat-area {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ai-chat-area.open { display: flex; }
+
+    .ai-chat-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .ai-chat-input {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-hi);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      outline: none;
+      resize: none;
+      min-height: 42px;
+      max-height: 120px;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+
+    .ai-chat-input:focus { border-color: #a78bfa; }
+    .ai-chat-input::placeholder { color: var(--muted); }
+
+    .ai-send-btn {
+      padding: 10px 16px;
+      background: rgba(167,139,250,0.15);
+      border: 1px solid rgba(167,139,250,0.35);
+      border-radius: 8px;
+      color: #a78bfa;
+      font-size: 12px;
+      font-family: var(--mono);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .ai-send-btn:hover { background: rgba(167,139,250,0.25); }
+    .ai-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Messages */
+    .ai-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .ai-messages::-webkit-scrollbar { width: 4px; }
+    .ai-messages::-webkit-scrollbar-track { background: transparent; }
+    .ai-messages::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+
+    .ai-msg {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      line-height: 1.7;
+      animation: fadeUp 0.2s ease both;
+    }
+
+    .ai-msg.user {
+      background: rgba(232,255,71,0.06);
+      border: 1px solid rgba(232,255,71,0.15);
+      color: var(--accent);
+      align-self: flex-end;
+      max-width: 85%;
+    }
+
+    .ai-msg.assistant {
+      background: rgba(167,139,250,0.07);
+      border: 1px solid rgba(167,139,250,0.2);
+      color: var(--text);
+      align-self: flex-start;
+      width: 100%;
+    }
+
+    .ai-msg.assistant .ai-msg-label {
+      font-size: 10px;
+      color: #a78bfa;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-msg.assistant .ai-msg-label::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #a78bfa;
+      animation: pulse 2s ease infinite;
+    }
+
+    .ai-msg-content { white-space: pre-wrap; }
+
+    /* Thinking indicator */
+    .ai-thinking {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: rgba(167,139,250,0.05);
+      border: 1px solid rgba(167,139,250,0.15);
+      border-radius: 8px;
+      font-size: 11px;
+      color: #a78bfa;
+    }
+
+    .ai-thinking.visible { display: flex; }
+
+    .ai-thinking-dots { display: flex; gap: 4px; }
+    .ai-thinking-dots span {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #a78bfa;
+      animation: thinky 1.2s ease infinite;
+    }
+    .ai-thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes thinky {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+
+    .ai-no-code-note {
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 10px 12px;
+      background: rgba(255,71,87,0.05);
+      border: 1px solid rgba(255,71,87,0.2);
+      border-radius: 6px;
+      display: none;
+    }
+
+    .ai-no-code-note.visible { display: block; }
+
     /* ── Responsive ───────────────────────────────────────────── */
     @media (max-width: 560px) {
       .info-row { grid-template-columns: 1fr 1fr; }
@@ -580,6 +840,7 @@
       .header-badge { display: none; }
       .section-grid { grid-template-columns: 1fr; }
       .section-panel.full { grid-column: 1; }
+      .ai-actions { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -646,7 +907,81 @@ print('Hello, ' .. lp.Name)"
     <!-- Error -->
     <div class="error-msg" id="errorMsg"></div>
 
-    <!-- Result Panel -->
+    <!-- AI Assistant Panel -->
+    <div class="ai-panel" id="aiPanel">
+      <div class="ai-panel-header" id="aiPanelToggle">
+        <div class="ai-badge">AI</div>
+        <span class="ai-panel-title">Script Assistant</span>
+        <span class="ai-panel-desc">— analyze, debug &amp; explain your script</span>
+        <svg class="ai-chevron" id="aiChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+
+      <div class="ai-panel-body" id="aiPanelBody">
+
+        <!-- No code warning -->
+        <div class="ai-no-code-note" id="aiNoCode">
+          ⚠ Paste a script in the editor above first, then use the AI actions.
+        </div>
+
+        <!-- Quick action buttons -->
+        <div class="ai-actions">
+          <button class="ai-action-btn" data-action="explain">
+            <span class="ai-btn-icon">🔍</span>
+            <span class="ai-btn-text">
+              <span class="ai-btn-label">Explain Script</span>
+              <span class="ai-btn-sub">What does this script do?</span>
+            </span>
+          </button>
+          <button class="ai-action-btn" data-action="detect">
+            <span class="ai-btn-icon">🎯</span>
+            <span class="ai-btn-text">
+              <span class="ai-btn-label">Detect Type</span>
+              <span class="ai-btn-sub">ESP, Aimbot, GUI, etc.</span>
+            </span>
+          </button>
+          <button class="ai-action-btn" data-action="debug">
+            <span class="ai-btn-icon">🐛</span>
+            <span class="ai-btn-text">
+              <span class="ai-btn-label">Bug Detector</span>
+              <span class="ai-btn-sub">Find errors &amp; issues</span>
+            </span>
+          </button>
+          <button class="ai-action-btn" data-action="review">
+            <span class="ai-btn-icon">⭐</span>
+            <span class="ai-btn-text">
+              <span class="ai-btn-label">Code Review</span>
+              <span class="ai-btn-sub">Quality &amp; improvements</span>
+            </span>
+          </button>
+        </div>
+
+        <!-- Messages -->
+        <div class="ai-messages" id="aiMessages"></div>
+
+        <!-- Thinking -->
+        <div class="ai-thinking" id="aiThinking">
+          <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
+          AI is analyzing your script...
+        </div>
+
+        <!-- Chat area -->
+        <div class="ai-chat-area open">
+          <div class="ai-chat-input-row">
+            <textarea
+              class="ai-chat-input"
+              id="aiChatInput"
+              placeholder="Ask anything about your script... e.g. 'How do I add a GUI to this?'"
+              rows="1"
+            ></textarea>
+            <button class="ai-send-btn" id="aiSendBtn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Ask
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
     <div class="result-panel" id="resultPanel">
       <div class="result-label">Script uploaded – ready to execute</div>
       <div class="link-row">
@@ -834,6 +1169,138 @@ print('Hello, ' .. lp.Name)"
         uploadBtn.disabled = false;
       }
     });
+
+    // ── AI Assistant ─────────────────────────────────────────────
+    const aiPanelToggle = document.getElementById('aiPanelToggle');
+    const aiPanelBody   = document.getElementById('aiPanelBody');
+    const aiChevron     = document.getElementById('aiChevron');
+    const aiMessages    = document.getElementById('aiMessages');
+    const aiThinking    = document.getElementById('aiThinking');
+    const aiChatInput   = document.getElementById('aiChatInput');
+    const aiSendBtn     = document.getElementById('aiSendBtn');
+    const aiNoCode      = document.getElementById('aiNoCode');
+
+    // Toggle panel open/close
+    aiPanelToggle.addEventListener('click', () => {
+      aiPanelBody.classList.toggle('open');
+      aiChevron.classList.toggle('open');
+    });
+
+    // Auto-resize chat textarea
+    aiChatInput.addEventListener('input', () => {
+      aiChatInput.style.height = 'auto';
+      aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 120) + 'px';
+    });
+
+    // Send on Enter (Shift+Enter = newline)
+    aiChatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendAiMessage();
+      }
+    });
+
+    aiSendBtn.addEventListener('click', sendAiMessage);
+
+    // Quick action buttons
+    document.querySelectorAll('.ai-action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        const code = codeInput.value.trim();
+
+        if (!code) {
+          aiNoCode.classList.add('visible');
+          // Make sure panel is open
+          aiPanelBody.classList.add('open');
+          aiChevron.classList.add('open');
+          setTimeout(() => aiNoCode.classList.remove('visible'), 3000);
+          return;
+        }
+
+        aiNoCode.classList.remove('visible');
+
+        const prompts = {
+          explain: 'Explain what this Roblox Lua script does in simple terms. Break it down step by step.',
+          detect:  'Detect what type of Roblox exploit/cheat script this is (e.g. ESP, Aimbot, Speed Hack, Fly Hack, GUI Hub, Auto Farm, etc.). Be specific.',
+          debug:   'Analyze this Roblox Lua script for bugs, errors, or potential issues. List each problem found and how to fix it.',
+          review:  'Do a code review of this Roblox Lua script. Rate its quality, point out bad practices, and suggest improvements.',
+        };
+
+        const prompt = prompts[action];
+        runAiQuery(prompt, code, btn.querySelector('.ai-btn-label').textContent);
+      });
+    });
+
+    function addMessage(role, text) {
+      const msg = document.createElement('div');
+      msg.className = `ai-msg ${role}`;
+
+      if (role === 'assistant') {
+        msg.innerHTML = `
+          <div class="ai-msg-label">Gemini AI</div>
+          <div class="ai-msg-content">${escapeHtml(text)}</div>`;
+      } else {
+        msg.innerHTML = `<div class="ai-msg-content">${escapeHtml(text)}</div>`;
+      }
+
+      aiMessages.appendChild(msg);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+      return msg;
+    }
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function runAiQuery(userPrompt, code, labelText) {
+      // Open panel if closed
+      aiPanelBody.classList.add('open');
+      aiChevron.classList.add('open');
+
+      addMessage('user', labelText || userPrompt);
+      aiThinking.classList.add('visible');
+      aiSendBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/ai/analyze', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ prompt: userPrompt, code }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.result) {
+          throw new Error(data.error || 'AI request failed.');
+        }
+
+        addMessage('assistant', data.result);
+      } catch (err) {
+        addMessage('assistant', '⚠ Error: ' + err.message);
+      } finally {
+        aiThinking.classList.remove('visible');
+        aiSendBtn.disabled = false;
+      }
+    }
+
+    async function sendAiMessage() {
+      const userText = aiChatInput.value.trim();
+      if (!userText) return;
+
+      const code = codeInput.value.trim();
+      aiChatInput.value = '';
+      aiChatInput.style.height = 'auto';
+
+      const prompt = code
+        ? `The user has this Roblox Lua script:\n\`\`\`lua\n${code}\n\`\`\`\n\nUser question: ${userText}`
+        : userText;
+
+      await runAiQuery(prompt, code, userText);
+    }
 
     // ── Copy button ──────────────────────────────────────────────
     copyBtn.addEventListener('click', async () => {
