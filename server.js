@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 // ── Environment Variables ───────────────────────────────────────────────────
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error(
@@ -303,7 +304,7 @@ app.get("/api/v1/script/:id", async (req, res) => {
   }
 });
 
-// ── API: Delete script (optional) ──────────────────────────────────────────
+// ── API: Delete script ──────────────────────────────────────────────────────
 app.delete("/api/v1/script/:id", async (req, res) => {
   const { id } = req.params;
   const { api_key } = req.query;
@@ -347,6 +348,62 @@ app.delete("/api/v1/script/:id", async (req, res) => {
       success: false, 
       error: "Internal server error." 
     });
+  }
+});
+
+// ── AI: Analyze script with Gemini 2.5 Flash ───────────────────────────────
+app.post("/api/ai/analyze", async (req, res) => {
+  const { prompt, code } = req.body;
+
+  if (!GEMINI_API_KEY) {
+    return res.status(500).json({ error: "Gemini API key not configured." });
+  }
+
+  if (!prompt || typeof prompt !== "string") {
+    return res.status(400).json({ error: "No prompt provided." });
+  }
+
+  const fullPrompt = code && code.trim().length > 0
+    ? `You are a Roblox Lua script expert assistant. You help users understand, debug, and improve their Roblox executor scripts.\n\nScript to analyze:\n\`\`\`lua\n${code.trim()}\n\`\`\`\n\n${prompt}\n\nBe concise, clear, and use simple language. Format your response with line breaks for readability.`
+    : `You are a Roblox Lua script expert assistant. ${prompt}\n\nBe concise and helpful.`;
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: fullPrompt }]
+            }
+          ],
+          generationConfig: {
+            maxOutputTokens: 1024,
+            temperature: 0.4,
+          }
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.error("Gemini API error:", response.status, errBody);
+      return res.status(500).json({ error: "Gemini API request failed." });
+    }
+
+    const data = await response.json();
+    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!result) {
+      return res.status(500).json({ error: "No response from Gemini." });
+    }
+
+    return res.status(200).json({ result });
+  } catch (err) {
+    console.error("AI analyze error:", err);
+    return res.status(500).json({ error: "Internal server error." });
   }
 });
 
@@ -406,9 +463,13 @@ app.listen(PORT, () => {
   console.log(`🚀  Roblox LuaBin running at http://localhost:${PORT}`);
   console.log(`✅ API Key: ${API_KEY}`);
   console.log(`✅ Allowed executors: Roblox, Krnl, Synapse, Delta, ScriptWare, Fluxus, Electron, Celery, Oxygen`);
-  console.log(`🚫 Browsers are blocked with funny page`);
+  console.log(`🎵 Browsers are rickrolled`);
+  console.log(`🤖 Gemini 2.5 Flash AI: ${GEMINI_API_KEY ? "✅ Connected" : "❌ Missing GEMINI_API_KEY"}`);
   console.log(`📡 API Endpoints:`);
-  console.log(`   POST   /api/v1/upload     - Upload script`);
-  console.log(`   GET    /api/v1/script/:id - Get script info`);
-  console.log(`   DELETE /api/v1/script/:id - Delete script`);
+  console.log(`   POST   /api/upload         - Upload script (web)`);
+  console.log(`   POST   /api/v1/upload      - Upload script (bot)`);
+  console.log(`   GET    /api/v1/script/:id  - Get script info`);
+  console.log(`   DELETE /api/v1/script/:id  - Delete script`);
+  console.log(`   POST   /api/ai/analyze     - AI script analysis`);
 });
+    
