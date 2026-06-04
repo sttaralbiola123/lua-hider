@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 // ── Environment Variables ───────────────────────────────────────────────────
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error(
@@ -351,53 +351,53 @@ app.delete("/api/v1/script/:id", async (req, res) => {
   }
 });
 
-// ── AI: Analyze script with Gemini 2.5 Flash ───────────────────────────────
+// ── AI: Analyze script with Groq ───────────────────────────────────────────
 app.post("/api/ai/analyze", async (req, res) => {
   const { prompt, code } = req.body;
 
-  if (!GEMINI_API_KEY) {
-    return res.status(500).json({ error: "Gemini API key not configured." });
+  if (!GROQ_API_KEY) {
+    return res.status(500).json({ error: "Groq API key not configured." });
   }
 
   if (!prompt || typeof prompt !== "string") {
     return res.status(400).json({ error: "No prompt provided." });
   }
 
-  const fullPrompt = code && code.trim().length > 0
-    ? `You are a Roblox Lua script expert assistant. You help users understand, debug, and improve their Roblox executor scripts.\n\nScript to analyze:\n\`\`\`lua\n${code.trim()}\n\`\`\`\n\n${prompt}\n\nBe concise, clear, and use simple language. Format your response with line breaks for readability.`
-    : `You are a Roblox Lua script expert assistant. ${prompt}\n\nBe concise and helpful.`;
+  const systemPrompt = "You are a Roblox Lua script expert assistant. You help users understand, debug, and improve their Roblox executor scripts. Be concise, clear, and use simple language. Format your response with line breaks for readability.";
+
+  const userMessage = code && code.trim().length > 0
+    ? `Script to analyze:\n\`\`\`lua\n${code.trim()}\n\`\`\`\n\n${prompt}`
+    : prompt;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: fullPrompt }]
-            }
-          ],
-          generationConfig: {
-            maxOutputTokens: 1024,
-            temperature: 0.4,
-          }
-        }),
-      }
-    );
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage }
+        ],
+        max_tokens: 1024,
+        temperature: 0.4,
+      }),
+    });
 
     if (!response.ok) {
       const errBody = await response.text();
-      console.error("Gemini API error:", response.status, errBody);
-      return res.status(500).json({ error: `Gemini error ${response.status}: ${errBody}` });
+      console.error("Groq API error:", response.status, errBody);
+      return res.status(500).json({ error: `Groq error ${response.status}: ${errBody}` });
     }
 
     const data = await response.json();
-    const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const result = data?.choices?.[0]?.message?.content;
 
     if (!result) {
-      return res.status(500).json({ error: "No response from Gemini." });
+      return res.status(500).json({ error: "No response from Groq." });
     }
 
     return res.status(200).json({ result });
@@ -464,7 +464,7 @@ app.listen(PORT, () => {
   console.log(`✅ API Key: ${API_KEY}`);
   console.log(`✅ Allowed executors: Roblox, Krnl, Synapse, Delta, ScriptWare, Fluxus, Electron, Celery, Oxygen`);
   console.log(`🎵 Browsers are rickrolled`);
-  console.log(`🤖 Gemini 2.5 Flash AI: ${GEMINI_API_KEY ? "✅ Connected" : "❌ Missing GEMINI_API_KEY"}`);
+  console.log(`🤖 Groq AI (llama-3.3-70b): ${GROQ_API_KEY ? "✅ Connected" : "❌ Missing GROQ_API_KEY"}`);
   console.log(`📡 API Endpoints:`);
   console.log(`   POST   /api/upload         - Upload script (web)`);
   console.log(`   POST   /api/v1/upload      - Upload script (bot)`);
@@ -472,4 +472,4 @@ app.listen(PORT, () => {
   console.log(`   DELETE /api/v1/script/:id  - Delete script`);
   console.log(`   POST   /api/ai/analyze     - AI script analysis`);
 });
-          
+      
