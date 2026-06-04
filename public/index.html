@@ -3,1320 +3,939 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LuaBin — Roblox Script Hosting</title>
+  <title>Lua Hider — Protect Your Roblox Scripts</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Source+CodePro:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* ── Reset & Base ─────────────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg:        #0a0c0f;
-      --surface:   #111318;
-      --border:    #1e222b;
-      --border-hi: #2e3444;
-      --accent:    #e8ff47;
-      --accent2:   #47ffb2;
-      --muted:     #3a3f4e;
-      --text:      #c8cdd8;
-      --text-dim:  #6b7280;
-      --red:       #ff4757;
-      --mono:      'JetBrains Mono', monospace;
-      --display:   'Syne', sans-serif;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 14px;
-      line-height: 1.6;
-      overflow-x: hidden;
+    body {
+      background: #050505;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      color: #e2e2e2;
+      line-height: 1.5;
+      padding: 2rem 1rem;
     }
 
-    /* ── Noise overlay ────────────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025;
-      pointer-events: none;
-      z-index: 0;
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
     }
 
-    /* ── Grid lines decoration ────────────────────────────────── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px;
-      opacity: 0.35;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* ── Layout ───────────────────────────────────────────────── */
-    .wrapper {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
+    .site-header {
+      margin-bottom: 2rem;
+      border-left: 3px solid #6affb0;
+      padding-left: 1rem;
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 48px 16px 64px;
-    }
-
-    /* ── Header ───────────────────────────────────────────────── */
-    header {
-      width: 100%;
-      max-width: 760px;
-      margin-bottom: 40px;
-      display: flex;
+      justify-content: space-between;
       align-items: flex-end;
-      gap: 16px;
-      animation: fadeDown 0.5s ease both;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
-    .logo-mark {
-      width: 40px;
-      height: 40px;
-      background: var(--accent);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .logo-mark svg { display: block; }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-      line-height: 1;
-    }
-
-    .logo-text .name {
-      font-family: var(--display);
-      font-size: 26px;
-      font-weight: 800;
-      color: #fff;
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
       letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #6affb0 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      display: inline-block;
     }
 
-    .logo-text .tagline {
-      font-size: 11px;
-      color: var(--text-dim);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-top: 4px;
+    .shield-badge {
+      background: #1a2a1f;
+      border: 1px solid #2a4a2a;
+      padding: 0.3rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #6affb0;
     }
 
-    .header-badge {
-      margin-left: auto;
-      padding: 4px 10px;
-      border: 1px solid var(--border-hi);
-      border-radius: 4px;
-      font-size: 11px;
-      color: var(--text-dim);
-      letter-spacing: 0.05em;
+    .sub {
+      color: #666;
+      margin-top: 0.3rem;
+      font-size: 0.85rem;
     }
 
-    .header-badge span {
-      color: var(--accent2);
-      font-weight: 700;
-    }
-
-    /* ── Card ─────────────────────────────────────────────────── */
-    .card {
-      width: 100%;
-      max-width: 760px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+    .editor-box {
+      background: #0b0b0b;
+      border: 1px solid #1e1e1e;
+      border-radius: 8px;
       overflow: hidden;
-      animation: fadeUp 0.5s ease 0.1s both;
+      margin-bottom: 1.2rem;
     }
 
-    /* ── Editor title bar ─────────────────────────────────────── */
-    .editor-bar {
+    .toolbar {
+      background: #0f0f0f;
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid #1c1c1c;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,0.02);
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
 
-    .dots {
-      display: flex;
-      gap: 6px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-
-    .dot-r { background: #ff5f57; }
-    .dot-y { background: #febc2e; }
-    .dot-g { background: #28c840; }
-
-    .editor-bar-label {
-      margin-left: 8px;
-      font-size: 12px;
-      color: var(--text-dim);
-    }
-
-    .lang-tag {
-      margin-left: auto;
-      padding: 2px 8px;
-      background: rgba(232, 255, 71, 0.1);
-      border: 1px solid rgba(232, 255, 71, 0.25);
+    .file-info {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.75rem;
+      color: #6affb0;
+      background: #0a0a0a;
+      padding: 0.2rem 0.6rem;
       border-radius: 3px;
-      font-size: 11px;
-      color: var(--accent);
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      border: 1px solid #1e3a2a;
     }
 
-    /* ── Textarea ─────────────────────────────────────────────── */
-    .textarea-wrap {
-      position: relative;
-    }
-
-    .line-numbers {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 48px;
-      padding: 16px 0;
-      text-align: right;
-      padding-right: 12px;
-      font-size: 13px;
-      line-height: 1.7;
-      color: var(--muted);
-      pointer-events: none;
-      user-select: none;
-      border-right: 1px solid var(--border);
-      min-height: 100%;
+    .stats {
+      font-size: 0.7rem;
+      color: #555;
+      font-family: monospace;
     }
 
     textarea {
-      display: block;
       width: 100%;
-      min-height: 340px;
-      resize: vertical;
-      background: transparent;
+      min-height: 380px;
+      background: #080808;
       border: none;
-      outline: none;
-      color: var(--text);
-      font-family: var(--mono);
+      color: #cdcdcd;
+      font-family: 'Source Code Pro', 'Courier New', monospace;
       font-size: 13px;
-      line-height: 1.7;
-      padding: 16px 20px 16px 68px;
-      caret-color: var(--accent);
-      tab-size: 2;
-    }
-
-    textarea::placeholder {
-      color: var(--muted);
+      line-height: 1.55;
+      padding: 1rem;
+      resize: vertical;
+      outline: none;
     }
 
     textarea:focus {
-      background: rgba(255,255,255,0.01);
-    }
-    
-    /* ── Footer bar ───────────────────────────────────────────── */
-    .card-footer {
-      padding: 14px 16px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      background: #0a0a0a;
     }
 
-    .char-count {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-
-    .char-count span {
-      color: var(--text);
-    }
-
-    /* ── Button ───────────────────────────────────────────────── */
     button {
+      background: #121212;
+      border: 1px solid #2a2a2a;
+      color: #ddd;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border-radius: 4px;
       cursor: pointer;
-      font-family: var(--mono);
-      font-weight: 700;
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      border: none;
-      border-radius: 6px;
-      transition: all 0.15s ease;
-    }
-
-    .btn-upload {
-      margin-left: auto;
-      padding: 10px 22px;
-      background: var(--accent);
-      color: #0a0c0f;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-upload:hover {
-      background: #f0ff6a;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 20px rgba(232, 255, 71, 0.25);
-    }
-
-    .btn-upload:active {
-      transform: translateY(0);
-    }
-
-    .btn-upload:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .btn-upload .spinner {
-      width: 14px;
-      height: 14px;
-      border: 2px solid rgba(0,0,0,0.25);
-      border-top-color: #000;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: none;
-    }
-
-    .btn-upload.loading .spinner { display: block; }
-    .btn-upload.loading .btn-label { display: none; }
-
-    /* ── Result panel ─────────────────────────────────────────── */
-    .result-panel {
-      margin-top: 16px;
-      width: 100%;
-      max-width: 760px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      animation: fadeUp 0.3s ease both;
-    }
-
-    .result-panel.visible { display: flex; }
-
-    .result-label {
-      font-size: 11px;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .result-label::before {
-      content: '';
-      display: block;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent2);
-      animation: pulse 2s ease infinite;
-    }
-
-    .link-row {
-      display: flex;
-      gap: 8px;
-      align-items: stretch;
-    }
-
-    .link-input {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border-hi);
-      border-radius: 6px;
-      padding: 10px 14px;
-      color: var(--accent2);
-      font-family: var(--mono);
-      font-size: 13px;
-      outline: none;
-    }
-
-    .link-input:focus {
-      border-color: var(--accent2);
-    }
-
-    .btn-copy {
-      padding: 10px 16px;
-      background: rgba(71, 255, 178, 0.1);
-      color: var(--accent2);
-      border: 1px solid rgba(71, 255, 178, 0.25);
-      border-radius: 6px;
-      font-size: 12px;
-      display: flex;
+      font-family: inherit;
+      transition: all 0.1s ease;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
     }
 
-    .btn-copy:hover {
-      background: rgba(71, 255, 178, 0.18);
+    button:hover {
+      background: #1a1a1a;
+      border-color: #6affb0;
+      color: #6affb0;
     }
 
-    .btn-copy.copied {
-      background: rgba(71, 255, 178, 0.22);
-      color: #fff;
+    .hide-btn {
+      background: #1a2a1f;
+      border-color: #2a4a2a;
+      color: #6affb0;
+      font-weight: 600;
     }
 
-    .usage-note {
-      font-size: 11px;
-      color: var(--text-dim);
-      padding: 10px 12px;
-      background: rgba(255,255,255,0.02);
-      border-radius: 6px;
-      border-left: 2px solid var(--muted);
+    .hide-btn:hover {
+      background: #1f3a22;
+      transform: scale(0.98);
     }
 
-    .usage-note code {
-      color: var(--text);
-      background: rgba(255,255,255,0.07);
-      padding: 1px 5px;
-      border-radius: 3px;
-    }
-
-    /* ── Error ────────────────────────────────────────────────── */
-    .error-msg {
-      margin-top: 16px;
-      width: 100%;
-      max-width: 760px;
-      padding: 12px 16px;
-      background: rgba(255, 71, 87, 0.08);
-      border: 1px solid rgba(255, 71, 87, 0.3);
+    .result-box {
+      background: #0b0b0b;
+      border: 1px solid #1e1e1e;
       border-radius: 8px;
-      color: var(--red);
-      font-size: 13px;
+      padding: 1rem;
+      margin: 1.2rem 0;
       display: none;
-      animation: fadeUp 0.3s ease both;
     }
 
-    .error-msg.visible { display: block; }
-
-    
-    /* ── Info cards row ───────────────────────────────────────── */
-    .info-row {
-      margin-top: 32px;
-      width: 100%;
-      max-width: 760px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      animation: fadeUp 0.5s ease 0.25s both;
+    .result-box.show {
+      display: block;
     }
 
-    .info-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-    }
-
-    .info-card .ic-num {
-      font-family: var(--display);
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--accent);
-    }
-
-    .info-card .ic-label {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-top: 4px;
+    .result-header {
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      color: #6affb0;
+      margin-bottom: 0.7rem;
+      letter-spacing: 1px;
     }
 
-    /* ── Footer ───────────────────────────────────────────────── */
-    footer {
-      margin-top: auto;
-      padding-top: 48px;
-      font-size: 11px;
-      color: var(--text-dim);
+    .link-copy-area {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .link-copy-area input {
+      flex: 1;
+      background: #0f0f0f;
+      border: 1px solid #2a2a2a;
+      padding: 0.65rem;
+      color: #6affb0;
+      font-family: monospace;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      outline: none;
+    }
+
+    .note {
+      font-size: 0.7rem;
+      color: #555;
+      background: #0a0a0a;
+      padding: 0.5rem 0.7rem;
+      border-left: 2px solid #2a2a2a;
+    }
+
+    .error-msg {
+      background: #1a0f0f;
+      border: 1px solid #5a2a2a;
+      color: #ff8a8a;
+      padding: 0.6rem 1rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin: 0.8rem 0;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .info-buttons {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .info-btn {
+      flex: 1;
+      background: #0a0a0a;
+      border: 1px solid #1e1e1e;
+      padding: 0.8rem;
       text-align: center;
-      animation: fadeUp 0.5s ease 0.35s both;
-    }
-
-    /* ── Animations ───────────────────────────────────────────── */
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.5; transform: scale(0.7); }
-    }
-
-    /* ── Section panels ───────────────────────────────────────── */
-    .section-grid {
-      margin-top: 24px;
-      width: 100%;
-      max-width: 760px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      animation: fadeUp 0.5s ease 0.3s both;
-    }
-    .section-panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .section-panel.full { grid-column: 1 / -1; }
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 13px 18px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,0.02);
-    }
-    .s-icon {
-      width: 28px; height: 28px;
+      cursor: pointer;
+      transition: all 0.15s;
       border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
     }
-    .s-icon.yellow { background: rgba(232,255,71,0.12); color: var(--accent); }
-    .s-icon.green  { background: rgba(71,255,178,0.12); color: var(--accent2); }
-    .s-icon.purple { background: rgba(167,139,250,0.12); color: #a78bfa; }
-    .s-title {
-      font-size: 12px; font-weight: 700;
-      color: #fff; letter-spacing: 0.04em; text-transform: uppercase;
-    }
-    .section-body {
-      padding: 16px 18px;
-      display: flex; flex-direction: column; gap: 10px;
-    }
-    /* Steps */
-    .step { display: flex; gap: 12px; align-items: flex-start; }
-    .step-num {
-      width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(232,255,71,0.1);
-      border: 1px solid rgba(232,255,71,0.25);
-      color: var(--accent); font-size: 11px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; margin-top: 1px;
-    }
-    .step-text { font-size: 12px; color: var(--text); line-height: 1.6; }
-    .step-text code {
-      background: rgba(255,255,255,0.07); color: var(--accent2);
-      padding: 1px 5px; border-radius: 3px; font-size: 11px;
-    }
-    /* About */
-    .about-point {
-      display: flex; gap: 10px; align-items: flex-start;
-      font-size: 12px; color: var(--text); line-height: 1.6;
-    }
-    .about-point::before { content: '▸'; color: var(--accent2); flex-shrink: 0; margin-top: 1px; }
-    /* Credits */
-    .creator-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 12px;
-      background: rgba(232,255,71,0.07);
-      border: 1px solid rgba(232,255,71,0.2);
-      border-radius: 6px; margin-bottom: 4px;
-    }
-    .creator-badge .cb-name {
-      font-family: var(--display); font-size: 15px; font-weight: 800; color: var(--accent);
-    }
-    .creator-badge .cb-tag {
-      font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em;
-    }
-    .credit-row {
-      display: flex; align-items: center; gap: 12px;
-      padding: 8px 0; border-bottom: 1px solid var(--border);
-    }
-    .credit-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .credit-row:first-child { padding-top: 0; }
-    .credit-platform {
-      width: 76px; font-size: 10px; color: var(--text-dim);
-      text-transform: uppercase; letter-spacing: 0.08em; flex-shrink: 0;
-    }
-    .credit-val { font-size: 12px; color: var(--text); word-break: break-all; }
-    .credit-val a { color: var(--accent2); text-decoration: none; }
-    .credit-val a:hover { text-decoration: underline; }
 
-    /* ── AI Panel ─────────────────────────────────────────────── */
-    .ai-panel {
-      margin-top: 16px;
+    .info-btn:hover {
+      border-color: #6affb0;
+      background: #0f0f0f;
+    }
+
+    .info-btn svg {
+      width: 28px;
+      height: 28px;
+      display: block;
+      margin: 0 auto 0.3rem auto;
+      stroke: #6affb0;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    .info-btn .title {
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      max-width: 760px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      animation: fadeUp 0.4s ease 0.15s both;
+      height: 100%;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
     }
 
-    .ai-panel-header {
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #0b0b0b;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      max-width: 450px;
+      width: 90%;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    .modal-header h3 {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--border);
-      background: rgba(255,255,255,0.02);
+      gap: 8px;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+      color: #666;
+    }
+
+    .close-modal:hover {
+      color: #ff8a8a;
+    }
+
+    .credit-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .credit-platform {
+      font-weight: 600;
+      color: #6affb0;
+      min-width: 85px;
+    }
+
+    .credit-value {
+      font-size: 0.8rem;
+      word-break: break-all;
+      flex: 1;
+      margin-left: 0.5rem;
+    }
+
+    .copy-credit-btn {
+      background: #1a1a1a;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.65rem;
+      margin-left: 0.5rem;
+    }
+
+    .ai-section {
+      margin: 1.5rem 0;
+      background: #0a0a0a;
+      border: 1px solid #1c1c1c;
+      border-radius: 8px;
+    }
+
+    .ai-header {
+      padding: 0.8rem 1rem;
+      background: #0e0e0e;
+      border-bottom: 1px solid #1c1c1c;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       cursor: pointer;
       user-select: none;
     }
 
-    .ai-panel-header:hover { background: rgba(255,255,255,0.04); }
+    .ai-header h3 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-    .ai-badge {
-      padding: 2px 8px;
-      background: rgba(167,139,250,0.15);
-      border: 1px solid rgba(167,139,250,0.35);
+    .ai-header span {
+      color: #6affb0;
+      font-size: 0.7rem;
+      background: #1a1a1a;
+      padding: 0.15rem 0.5rem;
       border-radius: 3px;
-      font-size: 11px;
-      color: #a78bfa;
-      font-weight: 700;
-      letter-spacing: 0.05em;
     }
 
-    .ai-panel-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .ai-panel-desc {
-      font-size: 11px;
-      color: var(--text-dim);
-      margin-left: 4px;
-    }
-
-    .ai-chevron {
-      margin-left: auto;
-      color: var(--text-dim);
-      transition: transform 0.2s ease;
-    }
-
-    .ai-chevron.open { transform: rotate(180deg); }
-
-    .ai-panel-body {
+    .ai-body {
+      padding: 1rem;
       display: none;
-      padding: 16px;
-      flex-direction: column;
-      gap: 12px;
     }
 
-    .ai-panel-body.open { display: flex; }
-
-    /* Action buttons row */
-    .ai-actions {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+    .ai-body.open {
+      display: block;
     }
 
-    .ai-action-btn {
-      padding: 10px 14px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border-hi);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 12px;
-      font-family: var(--mono);
-      text-align: left;
+    .action-buttons {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.15s ease;
-      cursor: pointer;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    .ai-action-btn:hover {
-      border-color: #a78bfa;
-      background: rgba(167,139,250,0.08);
-      color: #fff;
+    .action-btn {
+      background: #111;
+      border-color: #2a2a2a;
+      font-size: 0.7rem;
+      padding: 0.4rem 0.8rem;
     }
 
-    .ai-action-btn .ai-btn-icon {
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .ai-action-btn .ai-btn-text { line-height: 1.4; }
-    .ai-action-btn .ai-btn-label { font-weight: 700; display: block; font-size: 12px; }
-    .ai-action-btn .ai-btn-sub { font-size: 10px; color: var(--text-dim); display: block; margin-top: 1px; }
-
-    /* Chat area */
-    .ai-chat-area {
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .ai-chat-area.open { display: flex; }
-
-    .ai-chat-input-row {
-      display: flex;
-      gap: 8px;
-      align-items: flex-end;
-    }
-
-    .ai-chat-input {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border-hi);
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 12px;
-      outline: none;
-      resize: none;
-      min-height: 42px;
-      max-height: 120px;
-      line-height: 1.5;
-      transition: border-color 0.15s;
-    }
-
-    .ai-chat-input:focus { border-color: #a78bfa; }
-    .ai-chat-input::placeholder { color: var(--muted); }
-
-    .ai-send-btn {
-      padding: 10px 16px;
-      background: rgba(167,139,250,0.15);
-      border: 1px solid rgba(167,139,250,0.35);
-      border-radius: 8px;
-      color: #a78bfa;
-      font-size: 12px;
-      font-family: var(--mono);
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition: all 0.15s;
-    }
-
-    .ai-send-btn:hover { background: rgba(167,139,250,0.25); }
-    .ai-send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    /* Messages */
-    .ai-messages {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 360px;
+    .messages {
+      max-height: 280px;
       overflow-y: auto;
-      padding-right: 4px;
+      margin-bottom: 0.8rem;
     }
 
-    .ai-messages::-webkit-scrollbar { width: 4px; }
-    .ai-messages::-webkit-scrollbar-track { background: transparent; }
-    .ai-messages::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
-
-    .ai-msg {
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      line-height: 1.7;
-      animation: fadeUp 0.2s ease both;
+    .msg {
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
     }
 
-    .ai-msg.user {
-      background: rgba(232,255,71,0.06);
-      border: 1px solid rgba(232,255,71,0.15);
-      color: var(--accent);
-      align-self: flex-end;
-      max-width: 85%;
+    .msg.user {
+      background: #142010;
+      border-left: 2px solid #6affb0;
     }
 
-    .ai-msg.assistant {
-      background: rgba(167,139,250,0.07);
-      border: 1px solid rgba(167,139,250,0.2);
-      color: var(--text);
-      align-self: flex-start;
-      width: 100%;
+    .msg.ai {
+      background: #101018;
+      border-left: 2px solid #8a6aff;
     }
 
-    .ai-msg.assistant .ai-msg-label {
-      font-size: 10px;
-      color: #a78bfa;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .ai-msg.assistant .ai-msg-label::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #a78bfa;
-      animation: pulse 2s ease infinite;
-    }
-
-    .ai-msg-content { white-space: pre-wrap; }
-
-    /* Thinking indicator */
-    .ai-thinking {
+    .thinking {
       display: none;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      background: rgba(167,139,250,0.05);
-      border: 1px solid rgba(167,139,250,0.15);
-      border-radius: 8px;
-      font-size: 11px;
-      color: #a78bfa;
+      font-size: 0.7rem;
+      color: #6affb0;
+      padding: 0.4rem;
+      font-family: monospace;
     }
 
-    .ai-thinking.visible { display: flex; }
-
-    .ai-thinking-dots { display: flex; gap: 4px; }
-    .ai-thinking-dots span {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: #a78bfa;
-      animation: thinky 1.2s ease infinite;
-    }
-    .ai-thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .ai-thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes thinky {
-      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
-      40% { opacity: 1; transform: scale(1); }
+    .thinking.show {
+      display: block;
     }
 
-    .ai-no-code-note {
-      font-size: 11px;
-      color: var(--text-dim);
-      padding: 10px 12px;
-      background: rgba(255,71,87,0.05);
-      border: 1px solid rgba(255,71,87,0.2);
-      border-radius: 6px;
-      display: none;
+    .warning {
+      background: #1a1a0a;
+      border: 1px solid #5a5a2a;
+      color: #ddee88;
+      padding: 0.5rem;
+      font-size: 0.7rem;
+      margin-bottom: 0.8rem;
     }
 
-    .ai-no-code-note.visible { display: block; }
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.7rem;
+      color: #3a3a3a;
+      border-top: 1px solid #121212;
+      padding-top: 1.5rem;
+    }
 
-    /* ── Responsive ───────────────────────────────────────────── */
-    @media (max-width: 560px) {
-      .info-row { grid-template-columns: 1fr 1fr; }
-      .info-row .info-card:last-child { grid-column: 1 / -1; }
-      .header-badge { display: none; }
-      .section-grid { grid-template-columns: 1fr; }
-      .section-panel.full { grid-column: 1; }
-      .ai-actions { grid-template-columns: 1fr; }
+    a {
+      color: #8a8aff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: #6affb0;
+    }
+
+    .icon-sm {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
+<div class="container">
 
-    <!-- Header -->
-    <header>
-      <div class="logo-mark">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M8 3L3 8v13h18V3H8z" stroke="#0a0c0f" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M8 3v5H3" stroke="#0a0c0f" stroke-width="2" stroke-linejoin="round"/>
-          <path d="M7 13h10M7 17h6" stroke="#0a0c0f" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="logo-text">
-        <span class="name">LuaBin</span>
-        <span class="tagline">Roblox Script Hosting</span>
-      </div>
-      <div class="header-badge">Executor-ready &nbsp;·&nbsp; <span>v1</span></div>
-    </header>
-
-    <!-- Editor Card -->
-    <div class="card">
-      <div class="editor-bar">
-        <div class="dots">
-          <div class="dot dot-r"></div>
-          <div class="dot dot-y"></div>
-          <div class="dot dot-g"></div>
-        </div>
-        <span class="editor-bar-label">script.lua</span>
-        <div class="lang-tag">LUA</div>
-      </div>
-
-      <div class="textarea-wrap">
-        <div class="line-numbers" id="lineNumbers">1</div>
-        <textarea
-          id="codeInput"
-          spellcheck="false"
-          autocorrect="off"
-          autocapitalize="off"
-          placeholder="-- Paste your Roblox Lua script here...
--- Example:
-local Players = game:GetService('Players')
-local lp = Players.LocalPlayer
-print('Hello, ' .. lp.Name)"
-        ></textarea>
-      </div>
-
-      <div class="card-footer">
-        <span class="char-count">
-          <span id="charCount">0</span> characters &nbsp;·&nbsp; <span id="lineCount">0</span> lines
-        </span>
-        <button class="btn-upload" id="uploadBtn" disabled>
-          <div class="spinner"></div>
-          <span class="btn-label">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="display:inline;vertical-align:-2px;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            Upload Script
-          </span>
-        </button>
-      </div>
+  <div class="site-header">
+    <div>
+      <h1>Lua Hider</h1>
+      <div class="sub">protect your code — only executors can see it</div>
     </div>
-
-    <!-- Error -->
-    <div class="error-msg" id="errorMsg"></div>
-
-    <!-- AI Assistant Panel -->
-    <div class="ai-panel" id="aiPanel">
-      <div class="ai-panel-header" id="aiPanelToggle">
-        <div class="ai-badge">AI</div>
-        <span class="ai-panel-title">Script Assistant</span>
-        <span class="ai-panel-desc">— analyze, debug &amp; explain your script</span>
-        <svg class="ai-chevron" id="aiChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-
-      <div class="ai-panel-body" id="aiPanelBody">
-
-        <!-- No code warning -->
-        <div class="ai-no-code-note" id="aiNoCode">
-          ⚠ Paste a script in the editor above first, then use the AI actions.
-        </div>
-
-        <!-- Quick action buttons -->
-        <div class="ai-actions">
-          <button class="ai-action-btn" data-action="explain">
-            <span class="ai-btn-icon">🔍</span>
-            <span class="ai-btn-text">
-              <span class="ai-btn-label">Explain Script</span>
-              <span class="ai-btn-sub">What does this script do?</span>
-            </span>
-          </button>
-          <button class="ai-action-btn" data-action="detect">
-            <span class="ai-btn-icon">🎯</span>
-            <span class="ai-btn-text">
-              <span class="ai-btn-label">Detect Type</span>
-              <span class="ai-btn-sub">ESP, Aimbot, GUI, etc.</span>
-            </span>
-          </button>
-          <button class="ai-action-btn" data-action="debug">
-            <span class="ai-btn-icon">🐛</span>
-            <span class="ai-btn-text">
-              <span class="ai-btn-label">Bug Detector</span>
-              <span class="ai-btn-sub">Find errors &amp; issues</span>
-            </span>
-          </button>
-          <button class="ai-action-btn" data-action="review">
-            <span class="ai-btn-icon">⭐</span>
-            <span class="ai-btn-text">
-              <span class="ai-btn-label">Code Review</span>
-              <span class="ai-btn-sub">Quality &amp; improvements</span>
-            </span>
-          </button>
-        </div>
-
-        <!-- Messages -->
-        <div class="ai-messages" id="aiMessages"></div>
-
-        <!-- Thinking -->
-        <div class="ai-thinking" id="aiThinking">
-          <div class="ai-thinking-dots"><span></span><span></span><span></span></div>
-          AI is analyzing your script...
-        </div>
-
-        <!-- Chat area -->
-        <div class="ai-chat-area open">
-          <div class="ai-chat-input-row">
-            <textarea
-              class="ai-chat-input"
-              id="aiChatInput"
-              placeholder="Ask anything about your script... e.g. 'How do I add a GUI to this?'"
-              rows="1"
-            ></textarea>
-            <button class="ai-send-btn" id="aiSendBtn">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Ask
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-    <div class="result-panel" id="resultPanel">
-      <div class="result-label">Script uploaded – ready to execute</div>
-      <div class="link-row">
-        <input class="link-input" id="linkOutput" type="text" readonly />
-        <button class="btn-copy" id="copyBtn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          Copy
-        </button>
-      </div>
-      <div class="usage-note">
-        Paste this command into your Roblox executor.<br>
-        Direct browser access returns <strong style="color:var(--red)">404</strong> – scripts stay hidden.
-      </div>
-    </div>
-
-    <!-- Info row -->
-    <div class="info-row">
-      <div class="info-card">
-        <div class="ic-num">8</div>
-        <div class="ic-label">Char random ID</div>
-      </div>
-      <div class="info-card">
-        <div class="ic-num">404</div>
-        <div class="ic-label">Browser access blocked</div>
-      </div>
-      <div class="info-card">
-        <div class="ic-num">∞</div>
-        <div class="ic-label">Scripts stored</div>
-      </div>
-    </div>
-
-    <!-- Sections: How to Use / About / Credits -->
-    <div class="section-grid">
-
-      <!-- How to Use -->
-      <div class="section-panel">
-        <div class="section-header">
-          <div class="s-icon yellow">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-          </div>
-          <span class="s-title">How to Use</span>
-        </div>
-        <div class="section-body">
-          <div class="step"><div class="step-num">1</div><div class="step-text">Paste your Roblox Lua script into the editor above.</div></div>
-          <div class="step"><div class="step-num">2</div><div class="step-text">Click <strong style="color:#fff">Upload Script</strong> – it will be saved instantly.</div></div>
-          <div class="step"><div class="step-num">3</div><div class="step-text">Copy the <code>loadstring(...)</code> command shown below.</div></div>
-          <div class="step"><div class="step-num">4</div><div class="step-text">In your Roblox executor, paste and run the command.</div></div>
-        </div>
-      </div>
-
-      <!-- About -->
-      <div class="section-panel">
-        <div class="section-header">
-          <div class="s-icon green">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          </div>
-          <span class="s-title">About LuaBin</span>
-        </div>
-        <div class="section-body">
-          <div class="about-point">Store and host your Roblox Lua scripts in the cloud – no file sharing needed.</div>
-          <div class="about-point">Each script gets a unique 8‑character link that only works from Roblox executors.</div>
-          <div class="about-point">Browser access is blocked (404) to keep your scripts private.</div>
-          <div class="about-point">Scripts are stored securely in Supabase and served with no‑cache headers.</div>
-          <div class="about-point">No account required – just paste, upload, and run.</div>
-        </div>
-      </div>
-
-      <!-- Credits -->
-      <div class="section-panel full">
-        <div class="section-header">
-          <div class="s-icon purple">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </div>
-          <span class="s-title">Credits</span>
-        </div>
-        <div class="section-body">
-          <div class="creator-badge">
-            <span class="cb-name">Sttar Albiola</span>
-            <span class="cb-tag">Creator</span>
-          </div>
-          <div class="credit-row">
-            <span class="credit-platform">Facebook</span>
-            <span class="credit-val"><a href="https://www.facebook.com/sttaralbiola05" target="_blank" rel="noopener">facebook.com/sttaralbiola05</a></span>
-          </div>
-          <div class="credit-row">
-            <span class="credit-platform">YouTube</span>
-            <span class="credit-val"><a href="https://www.youtube.com/@Yasuoshin2012" target="_blank" rel="noopener">youtube.com/@Yasuoshin2012</a></span>
-          </div>
-          <div class="credit-row">
-            <span class="credit-platform">Discord</span>
-            <span class="credit-val">Sttar_Albiola</span>
-          </div>
-          <div class="credit-row">
-            <span class="credit-platform">Roblox</span>
-            <span class="credit-val">0nlyymikii</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <footer>LuaBin &mdash; Created by Sttar Albiola &nbsp;&middot;&nbsp; For educational &amp; legitimate Roblox development use only.</footer>
+    <div class="shield-badge">BROWSER = RICKROLL</div>
   </div>
+
+  <div class="editor-box">
+    <div class="toolbar">
+      <div class="file-info">script.lua</div>
+      <div class="stats" id="stats">0 chars | 0 lines</div>
+    </div>
+    <textarea id="codeArea" placeholder="-- paste your roblox lua script here
+-- lua hider will protect it from browsers
+-- example:
+local player = game.Players.LocalPlayer
+print('my script is hidden')"></textarea>
+  </div>
+
+  <div style="display: flex; gap: 0.6rem; margin-bottom: 0.5rem;">
+    <button id="hideBtn" class="hide-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      HIDE & GENERATE
+    </button>
+    <button id="clearBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+      </svg>
+      CLEAR
+    </button>
+  </div>
+
+  <div id="errorBox" class="error-msg"></div>
+
+  <div id="resultBox" class="result-box">
+    <div class="result-header">SCRIPT HIDDEN — READY TO EXECUTE</div>
+    <div class="link-copy-area">
+      <input type="text" id="resultLink" readonly>
+      <button id="copyLinkBtn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        COPY
+      </button>
+    </div>
+    <div class="note">
+      Only Roblox executors can access this script<br>
+      Browser access = Rickroll (your code stays hidden)<br>
+      Paste the command above in your executor
+    </div>
+  </div>
+
+  <div class="info-buttons">
+    <div class="info-btn" data-modal="howWorks">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4M12 8h.01"/>
+      </svg>
+      <div class="title">How It Works</div>
+    </div>
+    <div class="info-btn" data-modal="howUse">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      <div class="title">How to Use</div>
+    </div>
+    <div class="info-btn" data-modal="credits">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <div class="title">Credits</div>
+    </div>
+  </div>
+
+  <div class="ai-section" id="aiSection">
+    <div class="ai-header" id="aiToggle">
+      <h3>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z"/>
+          <circle cx="7.5" cy="14.5" r="1.5"/>
+          <circle cx="16.5" cy="14.5" r="1.5"/>
+        </svg>
+        AI Script Assistant
+      </h3>
+      <span>▼</span>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <div id="noCodeWarning" class="warning" style="display: none;">
+        Paste a script above first
+      </div>
+      <div class="action-buttons">
+        <button class="action-btn" data-act="explain">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Explain
+        </button>
+        <button class="action-btn" data-act="type">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20.59 13.41l-2.83 2.83M16 4h6M10 4h6M12 20h6"/><path d="M12 4v16"/></svg>
+          Detect Type
+        </button>
+        <button class="action-btn" data-act="bugs">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2v4M8 4v4M16 4v4"/><rect x="4" y="8" width="16" height="12" rx="2"/></svg>
+          Find Bugs
+        </button>
+        <button class="action-btn" data-act="review">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Code Review
+        </button>
+      </div>
+      <div class="messages" id="aiMessages"></div>
+      <div id="aiThinking" class="thinking">AI is analyzing your script...</div>
+    </div>
+  </div>
+
+  <footer>
+    Lua Hider — created by Sttar Albiola | protect your roblox scripts from being stolen
+  </footer>
+</div>
+
+<div id="modalHowWorks" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6affb0" stroke-width="1.8">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4M12 8h.01"/>
+        </svg>
+        How It Works
+      </h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div style="font-size:0.8rem; line-height:1.6;">
+      <p><strong>🔒 What is Lua Hider?</strong></p>
+      <p>Lua Hider is a script hosting service that hides your Roblox Lua code from browsers. Only Roblox executors can access your script.</p>
+      <br>
+      <p><strong>⚙️ How it works:</strong></p>
+      <p>1. Your script is uploaded to a secure database with a unique 8-character ID.</p>
+      <p>2. When accessed from a <strong style="color:#6affb0;">Roblox executor</strong>, the raw Lua code is returned.</p>
+      <p>3. When accessed from a <strong style="color:#ff8a8a;">normal browser</strong>, the request gets Rickrolled (redirect to YouTube).</p>
+      <p>4. Your code stays hidden — nobody can steal it.</p>
+      <br>
+      <p><strong>✨ Features:</strong></p>
+      <p>• No account required</p>
+      <p>• No logs kept</p>
+      <p>• Unlimited scripts</p>
+      <p>• AI assistant to analyze your code</p>
+      <p>• Browser access blocked by default</p>
+    </div>
+  </div>
+</div>
+
+<div id="modalHowUse" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6affb0" stroke-width="1.8">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        How to Use
+      </h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div style="font-size:0.8rem; line-height:1.6;">
+      <p><strong>📝 Step-by-step guide:</strong></p>
+      <br>
+      <p><strong>1.</strong> Paste your Roblox Lua script in the editor box above.</p>
+      <p><strong>2.</strong> Click the <strong style="color:#6affb0;">HIDE & GENERATE</strong> button.</p>
+      <p><strong>3.</strong> Wait for the upload to complete.</p>
+      <p><strong>4.</strong> Copy the <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;">loadstring(game:HttpGet("..."))()</code> command.</p>
+      <p><strong>5.</strong> Open your Roblox executor (Krnl, Synapse, Fluxus, ScriptWare, etc.).</p>
+      <p><strong>6.</strong> Paste the command and press Execute / Run.</p>
+      <br>
+      <p><strong>💡 Tips:</strong></p>
+      <p>• Use the AI assistant to analyze or debug your script</p>
+      <p>• Your script stays hidden even after sharing the link</p>
+      <p>• No one can view your code from a browser</p>
+    </div>
+  </div>
+</div>
+
+<div id="modalCredits" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6affb0" stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Credits
+      </h3>
+      <button class="close-modal">&times;</button>
+    </div>
+    <div>
+      <div class="credit-row">
+        <span class="credit-platform">Created by</span>
+        <span class="credit-value">Sttar Albiola</span>
+        <button class="copy-credit-btn" data-copy="Sttar Albiola">copy</button>
+      </div>
+      <div class="credit-row">
+        <span class="credit-platform">Facebook</span>
+        <span class="credit-value">Sttar Albiola</span>
+        <button class="copy-credit-btn" data-copy="https://www.facebook.com/sttaralbiola05">copy link</button>
+      </div>
+      <div class="credit-row">
+        <span class="credit-platform">Discord</span>
+        <span class="credit-value">sttar_albiola</span>
+        <button class="copy-credit-btn" data-copy="sttar_albiola">copy user</button>
+      </div>
+      <div class="credit-row">
+        <span class="credit-platform">Roblox</span>
+        <span class="credit-value">0nlyymikii</span>
+        <button class="copy-credit-btn" data-copy="0nlyymikii">copy user</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const textarea = document.getElementById('codeArea');
+  const hideBtn = document.getElementById('hideBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const stats = document.getElementById('stats');
+  const errorBox = document.getElementById('errorBox');
+  const resultBox = document.getElementById('resultBox');
+  const resultLink = document.getElementById('resultLink');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
   
-  <script>
-    const codeInput   = document.getElementById('codeInput');
-    const uploadBtn   = document.getElementById('uploadBtn');
-    const charCount   = document.getElementById('charCount');
-    const lineCount   = document.getElementById('lineCount');
-    const lineNumbers = document.getElementById('lineNumbers');
-    const resultPanel = document.getElementById('resultPanel');
-    const linkOutput  = document.getElementById('linkOutput');
-    const copyBtn     = document.getElementById('copyBtn');
-    const errorMsg    = document.getElementById('errorMsg');
+  const aiToggle = document.getElementById('aiToggle');
+  const aiBody = document.getElementById('aiBody');
+  const aiMessagesDiv = document.getElementById('aiMessages');
+  const aiThinking = document.getElementById('aiThinking');
+  const noCodeWarning = document.getElementById('noCodeWarning');
 
-    // ── Line numbers & char counter ──────────────────────────────
-    function updateMeta() {
-      const val   = codeInput.value;
-      const lines = val.split('\n').length;
-      charCount.textContent = val.length;
-      lineCount.textContent = lines;
-      lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
-      uploadBtn.disabled = val.trim().length === 0;
+  // MODAL SYSTEM
+  const modalHowWorks = document.getElementById('modalHowWorks');
+  const modalHowUse = document.getElementById('modalHowUse');
+  const modalCredits = document.getElementById('modalCredits');
+  const allModals = [modalHowWorks, modalHowUse, modalCredits];
+
+  function closeAllModals() {
+    allModals.forEach(modal => {
+      if (modal) modal.classList.remove('show');
+    });
+  }
+
+  document.querySelectorAll('.info-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modalId = btn.getAttribute('data-modal');
+      closeAllModals();
+      if (modalId === 'howWorks' && modalHowWorks) modalHowWorks.classList.add('show');
+      if (modalId === 'howUse' && modalHowUse) modalHowUse.classList.add('show');
+      if (modalId === 'credits' && modalCredits) modalCredits.classList.add('show');
+    });
+  });
+
+  document.querySelectorAll('.close-modal').forEach(closeBtn => {
+    closeBtn.addEventListener('click', closeAllModals);
+  });
+
+  window.addEventListener('click', (e) => {
+    if (e.target.classList.contains('modal')) {
+      closeAllModals();
+    }
+  });
+
+  function updateStats() {
+    const val = textarea.value;
+    const chars = val.length;
+    const lines = val.split('\n').length;
+    stats.innerText = `${chars} chars | ${lines} lines`;
+  }
+
+  textarea.addEventListener('input', updateStats);
+  textarea.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+      textarea.selectionStart = textarea.selectionEnd = start + 2;
+      updateStats();
+    }
+  });
+
+  clearBtn.addEventListener('click', () => {
+    textarea.value = '';
+    updateStats();
+    errorBox.classList.remove('show');
+    resultBox.classList.remove('show');
+  });
+
+  async function uploadScript() {
+    const code = textarea.value.trim();
+    if (!code) {
+      showError('Please paste a script first');
+      return;
     }
 
-    codeInput.addEventListener('input', updateMeta);
+    hideBtn.disabled = true;
+    hideBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> HIDING...';
+    errorBox.classList.remove('show');
 
-    // Keep line numbers scroll in sync
-    codeInput.addEventListener('scroll', () => {
-      lineNumbers.style.transform = `translateY(${-codeInput.scrollTop}px)`;
-    });
-
-    // Allow Tab key inside textarea
-    codeInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault();
-        const start = codeInput.selectionStart;
-        const end   = codeInput.selectionEnd;
-        codeInput.value = codeInput.value.substring(0, start) + '  ' + codeInput.value.substring(end);
-        codeInput.selectionStart = codeInput.selectionEnd = start + 2;
-        updateMeta();
-      }
-    });
-
-    updateMeta();
-
-    // ── Upload ───────────────────────────────────────────────────
-    uploadBtn.addEventListener('click', async () => {
-      const code = codeInput.value.trim();
-      if (!code) return;
-
-      // Reset UI
-      errorMsg.textContent = '';
-      errorMsg.classList.remove('visible');
-      resultPanel.classList.remove('visible');
-
-      uploadBtn.classList.add('loading');
-      uploadBtn.disabled = true;
-
-      try {
-        const res  = await fetch('/api/upload', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ code }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Upload failed.');
-        }
-
-        // Build the full raw URL and then wrap it in loadstring
-        const rawUrl = `${window.location.origin}${data.url}`;
-        const loadstringCmd = `loadstring(game:HttpGet("${rawUrl}"))()`;
-        
-        linkOutput.value = loadstringCmd;
-        resultPanel.classList.add('visible');
-        linkOutput.select();
-      } catch (err) {
-        errorMsg.textContent = '⚠  ' + err.message;
-        errorMsg.classList.add('visible');
-      } finally {
-        uploadBtn.classList.remove('loading');
-        uploadBtn.disabled = false;
-      }
-    });
-
-    // ── AI Assistant ─────────────────────────────────────────────
-    const aiPanelToggle = document.getElementById('aiPanelToggle');
-    const aiPanelBody   = document.getElementById('aiPanelBody');
-    const aiChevron     = document.getElementById('aiChevron');
-    const aiMessages    = document.getElementById('aiMessages');
-    const aiThinking    = document.getElementById('aiThinking');
-    const aiChatInput   = document.getElementById('aiChatInput');
-    const aiSendBtn     = document.getElementById('aiSendBtn');
-    const aiNoCode      = document.getElementById('aiNoCode');
-
-    // Toggle panel open/close
-    aiPanelToggle.addEventListener('click', () => {
-      aiPanelBody.classList.toggle('open');
-      aiChevron.classList.toggle('open');
-    });
-
-    // Auto-resize chat textarea
-    aiChatInput.addEventListener('input', () => {
-      aiChatInput.style.height = 'auto';
-      aiChatInput.style.height = Math.min(aiChatInput.scrollHeight, 120) + 'px';
-    });
-
-    // Send on Enter (Shift+Enter = newline)
-    aiChatInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendAiMessage();
-      }
-    });
-
-    aiSendBtn.addEventListener('click', sendAiMessage);
-
-    // Quick action buttons
-    document.querySelectorAll('.ai-action-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const action = btn.dataset.action;
-        const code = codeInput.value.trim();
-
-        if (!code) {
-          aiNoCode.classList.add('visible');
-          // Make sure panel is open
-          aiPanelBody.classList.add('open');
-          aiChevron.classList.add('open');
-          setTimeout(() => aiNoCode.classList.remove('visible'), 3000);
-          return;
-        }
-
-        aiNoCode.classList.remove('visible');
-
-        const prompts = {
-          explain: 'Explain what this Roblox Lua script does in simple terms. Break it down step by step.',
-          detect:  'Detect what type of Roblox exploit/cheat script this is (e.g. ESP, Aimbot, Speed Hack, Fly Hack, GUI Hub, Auto Farm, etc.). Be specific.',
-          debug:   'Analyze this Roblox Lua script for bugs, errors, or potential issues. List each problem found and how to fix it.',
-          review:  'Do a code review of this Roblox Lua script. Rate its quality, point out bad practices, and suggest improvements.',
-        };
-
-        const prompt = prompts[action];
-        runAiQuery(prompt, code, btn.querySelector('.ai-btn-label').textContent);
+    try {
+      const resp = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: code })
       });
+
+      const data = await resp.json();
+
+      if (!resp.ok) throw new Error(data.error || 'Upload failed');
+
+      const rawUrl = window.location.origin + data.url;
+      const loadstringCmd = `loadstring(game:HttpGet("${rawUrl}"))()`;
+      
+      resultLink.value = loadstringCmd;
+      resultBox.classList.add('show');
+      resultLink.select();
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      hideBtn.disabled = false;
+      hideBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> HIDE & GENERATE';
+    }
+  }
+
+  hideBtn.addEventListener('click', uploadScript);
+
+  copyLinkBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(resultLink.value);
+      copyLinkBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> COPIED!';
+      setTimeout(() => {
+        copyLinkBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> COPY';
+      }, 1500);
+    } catch {
+      resultLink.select();
+      document.execCommand('copy');
+      copyLinkBtn.innerHTML = 'COPIED!';
+      setTimeout(() => {
+        copyLinkBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> COPY';
+      }, 1500);
+    }
+  });
+
+  function showError(msg) {
+    errorBox.innerText = msg;
+    errorBox.classList.add('show');
+    setTimeout(() => {
+      errorBox.classList.remove('show');
+    }, 4000);
+  }
+
+  function getCurrentCode() {
+    return textarea.value.trim();
+  }
+
+  function addMessage(role, content) {
+    const msgDiv = document.createElement('div');
+    msgDiv.className = `msg ${role === 'user' ? 'user' : 'ai'}`;
+    msgDiv.innerHTML = `<strong>${role === 'user' ? 'you' : 'ai'}</strong><br>${escapeHtml(content)}`;
+    aiMessagesDiv.appendChild(msgDiv);
+    aiMessagesDiv.scrollTop = aiMessagesDiv.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
     });
+  }
 
-    function addMessage(role, text) {
-      const msg = document.createElement('div');
-      msg.className = `ai-msg ${role}`;
+  async function callAi(prompt, actionLabel) {
+    const code = getCurrentCode();
+    if (!code) {
+      noCodeWarning.style.display = 'block';
+      setTimeout(() => { noCodeWarning.style.display = 'none'; }, 2500);
+      return false;
+    }
+    noCodeWarning.style.display = 'none';
 
-      if (role === 'assistant') {
-        msg.innerHTML = `
-          <div class="ai-msg-label">Gemini AI</div>
-          <div class="ai-msg-content">${escapeHtml(text)}</div>`;
-      } else {
-        msg.innerHTML = `<div class="ai-msg-content">${escapeHtml(text)}</div>`;
+    const fullPrompt = `[SCRIPT]:\n\`\`\`lua\n${code}\n\`\`\`\n\n[REQUEST]: ${prompt}`;
+    addMessage('user', actionLabel);
+    
+    aiThinking.classList.add('show');
+    
+    try {
+      const resp = await fetch('/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: fullPrompt, code: code })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'AI error');
+      addMessage('ai', data.result || 'No response from AI');
+      return true;
+    } catch (err) {
+      addMessage('ai', `Error: ${err.message}`);
+      return false;
+    } finally {
+      aiThinking.classList.remove('show');
+    }
+  }
+
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const act = btn.getAttribute('data-act');
+      let prompt = '';
+      let label = '';
+      switch(act) {
+        case 'explain':
+          prompt = 'Explain this Roblox Lua script in simple terms. What does it do? Break it down step by step.';
+          label = 'Explain Script';
+          break;
+        case 'type':
+          prompt = 'Detect what type of Roblox cheat/script this is (ESP, Aimbot, Fly, Speed, GUI Hub, Auto Farm, etc.). Be specific.';
+          label = 'Detect Type';
+          break;
+        case 'bugs':
+          prompt = 'Find bugs, errors, or potential issues in this Roblox Lua script. List each problem and how to fix it.';
+          label = 'Find Bugs';
+          break;
+        case 'review':
+          prompt = 'Code review this Roblox Lua script. Rate quality (1-10), point out bad practices, suggest improvements.';
+          label = 'Code Review';
+          break;
       }
+      callAi(prompt, label);
+    });
+  });
 
-      aiMessages.appendChild(msg);
-      aiMessages.scrollTop = aiMessages.scrollHeight;
-      return msg;
+  let aiOpen = true;
+  aiToggle.addEventListener('click', () => {
+    aiOpen = !aiOpen;
+    if (aiOpen) {
+      aiBody.classList.add('open');
+      aiToggle.querySelector('span').innerHTML = '▼';
+    } else {
+      aiBody.classList.remove('open');
+      aiToggle.querySelector('span').innerHTML = '▶';
     }
+  });
+  aiBody.classList.add('open');
+  
+  updateStats();
 
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    async function runAiQuery(userPrompt, code, labelText) {
-      // Open panel if closed
-      aiPanelBody.classList.add('open');
-      aiChevron.classList.add('open');
-
-      addMessage('user', labelText || userPrompt);
-      aiThinking.classList.add('visible');
-      aiSendBtn.disabled = true;
-
+  // Copy credit buttons
+  document.querySelectorAll('.copy-credit-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const textToCopy = btn.getAttribute('data-copy');
       try {
-        const res = await fetch('/api/ai/analyze', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ prompt: userPrompt, code }),
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.result) {
-          throw new Error(data.error || 'AI request failed.');
-        }
-
-        addMessage('assistant', data.result);
-      } catch (err) {
-        addMessage('assistant', '⚠ Error: ' + err.message);
-      } finally {
-        aiThinking.classList.remove('visible');
-        aiSendBtn.disabled = false;
-      }
-    }
-
-    async function sendAiMessage() {
-      const userText = aiChatInput.value.trim();
-      if (!userText) return;
-
-      const code = codeInput.value.trim();
-      aiChatInput.value = '';
-      aiChatInput.style.height = 'auto';
-
-      const prompt = code
-        ? `The user has this Roblox Lua script:\n\`\`\`lua\n${code}\n\`\`\`\n\nUser question: ${userText}`
-        : userText;
-
-      await runAiQuery(prompt, code, userText);
-    }
-
-    // ── Copy button ──────────────────────────────────────────────
-    copyBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(linkOutput.value);
-        copyBtn.textContent = '✓  Copied!';
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-          copyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy`;
-          copyBtn.classList.remove('copied');
-        }, 2000);
+        await navigator.clipboard.writeText(textToCopy);
+        const originalText = btn.innerText;
+        btn.innerText = '✓';
+        setTimeout(() => { btn.innerText = originalText; }, 1000);
       } catch {
-        linkOutput.select();
-        document.execCommand('copy');
+        alert('Press Ctrl+C to copy');
       }
     });
-  </script>
+  });
+</script>
 </body>
 </html>
