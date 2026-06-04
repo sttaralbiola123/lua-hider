@@ -390,7 +390,7 @@ app.post("/api/ai/analyze", async (req, res) => {
     if (!response.ok) {
       const errBody = await response.text();
       console.error("Gemini API error:", response.status, errBody);
-      return res.status(500).json({ error: "Gemini API request failed." });
+      return res.status(500).json({ error: `Gemini error ${response.status}: ${errBody}` });
     }
 
     const data = await response.json();
@@ -472,4 +472,4 @@ app.listen(PORT, () => {
   console.log(`   DELETE /api/v1/script/:id  - Delete script`);
   console.log(`   POST   /api/ai/analyze     - AI script analysis`);
 });
-    
+          
