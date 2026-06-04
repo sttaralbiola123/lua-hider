@@ -466,6 +466,7 @@
 <body>
 <div class="container">
 
+
   <div class="site-header">
     <div>
       <h1>Lua Hider</h1>
@@ -591,6 +592,7 @@ print('my script is hidden')"></textarea>
   </footer>
 </div>
 
+
 <div id="modalHowWorks" class="modal">
   <div class="modal-content">
     <div class="modal-header">
@@ -604,21 +606,21 @@ print('my script is hidden')"></textarea>
       <button class="close-modal">&times;</button>
     </div>
     <div style="font-size:0.8rem; line-height:1.6;">
-      <p><strong>🔒 What is Lua Hider?</strong></p>
+      <p><strong>What is Lua Hider?</strong></p>
       <p>Lua Hider is a script hosting service that hides your Roblox Lua code from browsers. Only Roblox executors can access your script.</p>
       <br>
-      <p><strong>⚙️ How it works:</strong></p>
+      <p><strong>How it works:</strong></p>
       <p>1. Your script is uploaded to a secure database with a unique 8-character ID.</p>
-      <p>2. When accessed from a <strong style="color:#6affb0;">Roblox executor</strong>, the raw Lua code is returned.</p>
-      <p>3. When accessed from a <strong style="color:#ff8a8a;">normal browser</strong>, the request gets Rickrolled (redirect to YouTube).</p>
+      <p>2. When accessed from a Roblox executor, the raw Lua code is returned.</p>
+      <p>3. When accessed from a normal browser, the request gets Rickrolled (redirect to YouTube).</p>
       <p>4. Your code stays hidden — nobody can steal it.</p>
       <br>
-      <p><strong>✨ Features:</strong></p>
-      <p>• No account required</p>
-      <p>• No logs kept</p>
-      <p>• Unlimited scripts</p>
-      <p>• AI assistant to analyze your code</p>
-      <p>• Browser access blocked by default</p>
+      <p><strong>Features:</strong></p>
+      <p>- No account required</p>
+      <p>- No logs kept</p>
+      <p>- Unlimited scripts</p>
+      <p>- AI assistant to analyze your code</p>
+      <p>- Browser access blocked by default</p>
     </div>
   </div>
 </div>
@@ -636,19 +638,19 @@ print('my script is hidden')"></textarea>
       <button class="close-modal">&times;</button>
     </div>
     <div style="font-size:0.8rem; line-height:1.6;">
-      <p><strong>📝 Step-by-step guide:</strong></p>
+      <p><strong>Step-by-step guide:</strong></p>
       <br>
       <p><strong>1.</strong> Paste your Roblox Lua script in the editor box above.</p>
-      <p><strong>2.</strong> Click the <strong style="color:#6affb0;">HIDE & GENERATE</strong> button.</p>
+      <p><strong>2.</strong> Click the HIDE & GENERATE button.</p>
       <p><strong>3.</strong> Wait for the upload to complete.</p>
-      <p><strong>4.</strong> Copy the <code style="background:#1a1a1a;padding:2px 6px;border-radius:4px;">loadstring(game:HttpGet("..."))()</code> command.</p>
+      <p><strong>4.</strong> Copy the loadstring command.</p>
       <p><strong>5.</strong> Open your Roblox executor (Krnl, Synapse, Fluxus, ScriptWare, etc.).</p>
       <p><strong>6.</strong> Paste the command and press Execute / Run.</p>
       <br>
-      <p><strong>💡 Tips:</strong></p>
-      <p>• Use the AI assistant to analyze or debug your script</p>
-      <p>• Your script stays hidden even after sharing the link</p>
-      <p>• No one can view your code from a browser</p>
+      <p><strong>Tips:</strong></p>
+      <p>- Use the AI assistant to analyze or debug your script</p>
+      <p>- Your script stays hidden even after sharing the link</p>
+      <p>- No one can view your code from a browser</p>
     </div>
   </div>
 </div>
@@ -706,7 +708,6 @@ print('my script is hidden')"></textarea>
   const aiThinking = document.getElementById('aiThinking');
   const noCodeWarning = document.getElementById('noCodeWarning');
 
-  // MODAL SYSTEM
   const modalHowWorks = document.getElementById('modalHowWorks');
   const modalHowUse = document.getElementById('modalHowUse');
   const modalCredits = document.getElementById('modalCredits');
@@ -870,8 +871,15 @@ print('my script is hidden')"></textarea>
       });
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.error || 'AI error');
-      addMessage('ai', data.result || 'No response from AI');
-      return true;
+      
+      let cleanResult = data.result || 'No response from AI';
+      cleanResult = cleanResult.replace(/[*#"'`\\/()+=_•|@[\]{}]/g, '');
+      cleanResult = cleanResult.replace(/\. /g, '.\n\n');
+      cleanResult = cleanResult.replace(/\n{3,}/g, '\n\n');
+      cleanResult = cleanResult.trim();
+      
+      addMessage('ai', cleanResult);
+      
     } catch (err) {
       addMessage('ai', `Error: ${err.message}`);
       return false;
@@ -922,7 +930,6 @@ print('my script is hidden')"></textarea>
   
   updateStats();
 
-  // Copy credit buttons
   document.querySelectorAll('.copy-credit-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const textToCopy = btn.getAttribute('data-copy');
