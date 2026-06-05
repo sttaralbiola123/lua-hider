@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lua Hider Dashboard</title>
+<style>
+:root{--bg:#0a0a0f;--panel:rgba(255,255,255,.05);--border:rgba(255,255,255,.08);--accent:#00ffcc;--text:#fff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{height:100vh;overflow:hidden;font-family:Arial,sans-serif;background:linear-gradient(135deg,#0a0a0f,#101826);color:#fff}
+.app{height:100vh;display:grid;grid-template-columns:80px 1fr}
+.sidebar{border-right:1px solid var(--border);padding:20px;display:flex;flex-direction:column;gap:12px;background:rgba(255,255,255,.03)}
+.side-btn{height:48px;border-radius:12px;background:rgba(255,255,255,.05)}
+.main{padding:20px;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
+.glass{background:var(--panel);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:20px}
+.card{padding:18px}
+.topbar{display:grid;grid-template-columns:1fr repeat(3,160px);gap:12px}
+.workspace{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+textarea{width:100%;height:420px;background:#0d1117;color:#fff;border:1px solid var(--border);border-radius:12px;padding:12px}
+.output-grid{display:grid;grid-template-columns:1fr 320px;gap:16px}
+.info{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+button{padding:12px;border:none;border-radius:12px;cursor:pointer}
+.primary{background:#00ffcc;color:#000}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+<div class="side-btn"></div>
+<div class="side-btn"></div>
+<div class="side-btn"></div>
+<div class="side-btn"></div>
+</div>
+<div class="main">
+<div class="topbar">
+<div class="glass card"><h2>Lua Hider Dashboard</h2><p>Hide your Roblox scripts from prying eyes</p></div>
+<div class="glass card">Status<br>Online</div>
+<div class="glass card">Uploads<br>0</div>
+<div class="glass card">Session<br>0</div>
+</div>
+
+<div class="workspace">
+<div class="glass card">
+<h3>Script Editor</h3><br>
+<textarea placeholder="Paste Lua script here..."></textarea><br><br>
+<button class="primary">Hide Script</button>
+</div>
+<div class="glass card">
+<h3>AI Assistant</h3><br>
+<p>Explain • Detect • Debug • Review</p>
+</div>
+</div>
+
+<div class="output-grid">
+<div class="glass card">Generated Loadstring</div>
+<div class="glass card">Recent Hidden Scripts</div>
+</div>
+
+<div class="info">
+<button>How It Works</button>
+<button>Usage Guide</button>
+<button>Credits</button>
+</div>
+</div>
+</div>
+</body>
+</html>
