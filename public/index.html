@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lua Hider — Script Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* =============================================
+       CSS VARIABLES & RESET
+    ============================================= */
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #0f0f18;
+      --bg3: #13131e;
+      --surface: rgba(255,255,255,0.04);
+      --surface2: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-accent: rgba(0,255,204,0.3);
+      --cyan: #00ffcc;
+      --cyan-dim: rgba(0,255,204,0.15);
+      --cyan-glow: rgba(0,255,204,0.5);
+      --text: #e8e8f0;
+      --text-dim: #6b6b80;
+      --text-mid: #9999b0;
+      --red: #ff4d6d;
+      --green: #00e67a;
+      --yellow: #ffd166;
+      --sidebar-w: 240px;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --transition: 0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    input, textarea { font-family: inherit; }
+    a { color: inherit; text-decoration: none; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,204,0.3); }
+
+    /* =============================================
+       LAYOUT
+    ============================================= */
+    #app { display: flex; height: 100vh; position: relative; overflow: hidden; }
+
+    /* OVERLAY */
+    #overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      z-index: 90;
+    }
+    #overlay.active { display: block; }
+
+    /* SIDEBAR */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+      flex-shrink: 0;
+    }
+    .sidebar-logo {
+      padding: 24px 20px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--cyan) 0%, #0080ff 100%);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(0,255,204,0.35);
+    }
+    .logo-text { font-size: 0.95rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text); }
+    .logo-sub { font-size: 0.65rem; color: var(--text-dim); letter-spacing: 0.08em; text-transform: uppercase; }
+
+    .nav-section { padding: 16px 12px 0; flex: 1; overflow-y: auto; }
+    .nav-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-dim); padding: 0 8px; margin-bottom: 8px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px;
+      border-radius: var(--radius-sm);
+      color: var(--text-mid);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+      margin-bottom: 2px;
+      user-select: none;
+    }
+    .nav-item:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+    .nav-item.active {
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      border: 1px solid var(--border-accent);
+    }
+    .nav-item.active::before {
+      content: '';
+      position: absolute; left: -12px; top: 50%; transform: translateY(-50%);
+      width: 3px; height: 18px;
+      background: var(--cyan);
+      border-radius: 0 2px 2px 0;
+      box-shadow: 0 0 8px var(--cyan-glow);
+    }
+    .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active .nav-icon { opacity: 1; }
+
+    .sidebar-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .status-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      margin-right: 6px; vertical-align: middle;
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse-dot 2s infinite;
+    }
+    .status-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); animation: none; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* MAIN */
+    #main {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR (mobile) */
+    #topbar {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 80;
+    }
+    .topbar-logo { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; font-weight: 700; }
+    #hamburger {
+      width: 38px; height: 38px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition);
+      color: var(--text);
+    }
+    #hamburger:hover { border-color: var(--border-accent); color: var(--cyan); }
+
+    .section-wrap { padding: 28px; display: none; animation: fadeIn 0.25s ease; }
+    .section-wrap.active { display: block; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    /* PAGE HEADER */
+    .page-header { margin-bottom: 24px; }
+    .page-title { font-size: 1.4rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+    .page-subtitle { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
+
+    /* GLASS CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      transition: border-color var(--transition);
+    }
+    .card:hover { border-color: rgba(255,255,255,0.14); }
+    .card-title {
+      font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 14px;
+    }
+
+    /* EDITOR SECTION */
+    .editor-grid { display: grid; gap: 16px; }
+
+    .editor-toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .editor-toolbar-left { display: flex; align-items: center; gap: 8px; }
+    .toolbar-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .toolbar-dot:nth-child(1) { background: #ff5f57; }
+    .toolbar-dot:nth-child(2) { background: #ffbd2e; }
+    .toolbar-dot:nth-child(3) { background: #28c840; }
+    .editor-stats { font-size: 0.72rem; color: var(--text-dim); display: flex; gap: 12px; }
+
+    #lua-editor {
+      width: 100%; min-height: 280px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 var(--radius) var(--radius);
+      color: var(--text);
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      padding: 16px;
+      resize: vertical;
+      outline: none;
+      transition: border-color var(--transition);
+      tab-size: 2;
+    }
+    #lua-editor:focus { border-color: var(--border-accent); box-shadow: 0 0 0 1px var(--border-accent) inset; }
+
+    .editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.83rem; font-weight: 600;
+      transition: all var(--transition);
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: var(--cyan);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0,255,204,0.2);
+    }
+    .btn-primary:hover {
+      background: #00e6b8;
+      box-shadow: 0 0 28px rgba(0,255,204,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text-mid);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); border-color: rgba(255,255,255,0.15); }
+    .btn-danger {
+      background: rgba(255,77,109,0.12);
+      color: var(--red);
+      border: 1px solid rgba(255,77,109,0.25);
+    }
+    .btn-danger:hover { background: rgba(255,77,109,0.2); }
+    .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* RESULT BLOCK */
+    #result-block { display: none; margin-top: 16px; }
+    .result-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .result-label { font-size: 0.78rem; font-weight: 600; color: var(--cyan); display: flex; align-items: center; gap: 6px; }
+    .result-label svg { width: 14px; height: 14px; }
+    .code-block {
+      background: var(--bg3);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.82rem;
+      color: var(--cyan);
+      word-break: break-all;
+      line-height: 1.5;
+      box-shadow: 0 0 20px rgba(0,255,204,0.05);
+      position: relative;
+    }
+
+    /* SPINNER */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(0,255,204,0.2);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* AI SECTION */
+    .ai-quick-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .ai-chip {
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem; font-weight: 500;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-mid);
+      transition: all var(--transition);
+    }
+    .ai-chip:hover { background: var(--cyan-dim); border-color: var(--border-accent); color: var(--cyan); }
+
+    #ai-response-area {
+      min-height: 180px; max-height: 420px;
+      overflow-y: auto;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      font-size: 0.83rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 14px;
+      white-space: pre-wrap;
+    }
+    #ai-response-area.empty { color: var(--text-dim); }
+
+    .typing-indicator { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
+    .typing-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--cyan);
+      animation: typing 1.2s infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
+
+    .ai-custom { display: flex; gap: 8px; margin-top: 4px; }
+    #ai-prompt { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 9px 14px; font-size: 0.83rem; outline: none; transition: border-color var(--transition); }
+    #ai-prompt:focus { border-color: var(--border-accent); }
+    #ai-prompt::placeholder { color: var(--text-dim); }
+
+    /* RECENT SCRIPTS */
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      transition: border-color var(--transition);
+    }
+    .history-item:hover { border-color: rgba(255,255,255,0.14); }
+    .history-item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+    .history-ts { font-size: 0.72rem; color: var(--text-dim); }
+    .history-actions { display: flex; gap: 6px; }
+    .history-url {
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.75rem;
+      color: var(--cyan);
+      word-break: break-all;
+      line-height: 1.5;
+      padding: 6px 10px;
+      background: var(--bg3);
+      border-radius: 4px;
+      border: 1px solid rgba(0,255,204,0.1);
+    }
+    .empty-state {
+      text-align: center; padding: 48px 0;
+      color: var(--text-dim); font-size: 0.85rem;
+    }
+    .empty-state svg { width: 36px; height: 36px; margin: 0 auto 12px; display: block; opacity: 0.3; }
+
+    /* INFO SECTION */
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .info-card:hover {
+      border-color: var(--border-accent);
+      background: var(--cyan-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 20px rgba(0,255,204,0.07);
+    }
+    .info-icon { width: 38px; height: 38px; background: var(--cyan-dim); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-accent); }
+    .info-icon svg { width: 20px; height: 20px; color: var(--cyan); }
+    .info-card-title { font-size: 0.9rem; font-weight: 600; }
+    .info-card-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+    /* SETTINGS */
+    .settings-grid { display: grid; gap: 16px; }
+    .stat-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: 0.83rem; color: var(--text-mid); }
+    .stat-value { font-size: 0.83rem; font-weight: 600; color: var(--text); font-family: 'Source Code Pro', monospace; }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+    .badge-green { background: rgba(0,230,122,0.12); color: var(--green); border: 1px solid rgba(0,230,122,0.25); }
+    .badge-red { background: rgba(255,77,109,0.12); color: var(--red); border: 1px solid rgba(255,77,109,0.25); }
+    .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid var(--border-accent); }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      animation: backdropIn 0.2s ease;
+    }
+    @keyframes backdropIn { from{opacity:0} to{opacity:1} }
+    .modal {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      width: 100%; max-width: 520px;
+      max-height: 80vh;
+      overflow-y: auto;
+      animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.92)} to{opacity:1;transform:scale(1)} }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0;
+      background: var(--bg2);
+    }
+    .modal-title { font-size: 1rem; font-weight: 700; }
+    .modal-close {
+      width: 30px; height: 30px;
+      border-radius: 6px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition);
+    }
+    .modal-close:hover { color: var(--text); background: var(--surface2); }
+    .modal-body { padding: 24px; }
+    .modal-body h3 { font-size: 0.85rem; font-weight: 700; color: var(--cyan); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .modal-body p { font-size: 0.83rem; color: var(--text-mid); line-height: 1.7; margin-bottom: 16px; }
+    .modal-body ol { padding-left: 18px; }
+    .modal-body ol li { font-size: 0.83rem; color: var(--text-mid); line-height: 1.7; margin-bottom: 6px; }
+    .credit-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+    .credit-info { display: flex; flex-direction: column; gap: 2px; }
+    .credit-platform { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
+    .credit-value { font-size: 0.83rem; font-weight: 500; color: var(--text); }
+
+    /* TOAST */
+    #toast-container {
+      position: fixed; top: 20px; right: 20px; z-index: 300;
+      display: flex; flex-direction: column; gap: 8px;
+      pointer-events: none;
+    }
+    .toast {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      display: flex; align-items: center; gap: 8px;
+      animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: all;
+      max-width: 300px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .toast.success { border-color: rgba(0,230,122,0.3); color: var(--green); }
+    .toast.error { border-color: rgba(255,77,109,0.3); color: var(--red); }
+    .toast.info { border-color: var(--border-accent); color: var(--cyan); }
+    .toast.out { animation: toastOut 0.25s ease forwards; }
+    @keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+    @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(20px)} }
+    .toast svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* SUCCESS FLASH */
+    @keyframes successFlash { 0%,100%{border-color:var(--border-accent)} 50%{border-color:var(--cyan);box-shadow:0 0 30px rgba(0,255,204,0.3)} }
+    .flash { animation: successFlash 0.8s ease 2; }
+
+    /* GLOW DIVIDER */
+    .glow-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-accent), transparent); margin: 20px 0; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      #sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        transform: translateX(-100%);
+        z-index: 100;
+      }
+      #sidebar.open { transform: translateX(0); }
+      #topbar { display: flex; }
+      .section-wrap { padding: 20px 16px; }
+      .ai-custom { flex-direction: column; }
+      .editor-stats { display: none; }
+    }
+
+    /* NEON SCAN LINE (purely decorative) */
+    body::after {
+      content: '';
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent 0%, var(--cyan) 50%, transparent 100%);
+      opacity: 0.15;
+      z-index: 9999;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- APP WRAPPER -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">
+        <!-- Shield Icon -->
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">Lua Hider</div>
+        <div class="logo-sub">Script Vault</div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Workspace</div>
+      <div class="nav-item active" onclick="switchSection('editor',this)">
+        <!-- Code Icon -->
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Script Editor
+      </div>
+      <div class="nav-item" onclick="switchSection('ai',this)">
+        <!-- Sparkle / AI Icon -->
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        AI Assistant
+      </div>
+      <div class="nav-item" onclick="switchSection('recent',this)">
+        <!-- Clock Icon -->
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Recent Scripts
+      </div>
+      <div class="nav-item" onclick="switchSection('info',this)">
+        <!-- Info Icon -->
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Information
+      </div>
+      <div class="nav-item" onclick="switchSection('settings',this)">
+        <!-- Settings Icon -->
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <span class="status-dot" id="sidebar-status-dot"></span>
+      <span id="sidebar-status-text">Checking...</span>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div id="main">
+
+    <!-- MOBILE TOPBAR -->
+    <div id="topbar">
+      <div class="topbar-logo">
+        <div class="logo-icon" style="width:28px;height:28px;border-radius:6px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        Lua Hider
+      </div>
+      <button id="hamburger" onclick="openSidebar()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+
+    <!-- ===========================
+         SECTION 1: SCRIPT EDITOR
+    =========================== -->
+    <div class="section-wrap active" id="sec-editor">
+      <div class="page-header">
+        <div class="page-title">Script Editor</div>
+        <div class="page-subtitle">Paste your Lua script, hide it and get a loadstring URL.</div>
+      </div>
+
+      <div class="editor-grid">
+        <!-- Toolbar -->
+        <div>
+          <div class="editor-toolbar">
+            <div class="editor-toolbar-left">
+              <div class="toolbar-dot"></div>
+              <div class="toolbar-dot"></div>
+              <div class="toolbar-dot"></div>
+            </div>
+            <div class="editor-stats">
+              <span id="char-count">0 chars</span>
+              <span id="line-count">1 line</span>
+            </div>
+          </div>
+          <textarea
+            id="lua-editor"
+            spellcheck="false"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            placeholder="-- Paste your Lua script here...
+-- Example:
+print('Hello from Lua Hider!')"
+          ></textarea>
+        </div>
+
+        <!-- Actions -->
+        <div class="editor-actions">
+          <button class="btn btn-primary" onclick="hideScript()" id="hide-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            Hide Script
+          </button>
+          <button class="btn btn-ghost" onclick="clearEditor()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Clear
+          </button>
+        </div>
+
+        <!-- Result -->
+        <div id="result-block">
+          <div class="result-header">
+            <div class="result-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Loadstring Generated
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="copyResult()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+          </div>
+          <div class="code-block" id="result-code"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 2: AI ASSISTANT
+    =========================== -->
+    <div class="section-wrap" id="sec-ai">
+      <div class="page-header">
+        <div class="page-title">AI Assistant</div>
+        <div class="page-subtitle">Analyze your script with AI-powered tools.</div>
+      </div>
+
+      <div class="editor-grid">
+        <!-- Quick actions -->
+        <div class="card">
+          <div class="card-title">Quick Analysis</div>
+          <div class="ai-quick-btns">
+            <button class="ai-chip" onclick="aiQuick('Explain this Lua script in detail. Describe what each part does.')">
+              Explain
+            </button>
+            <button class="ai-chip" onclick="aiQuick('Detect the type/category of this Lua script (game hack, utility, bot, etc.) and explain why.')">
+              Detect Type
+            </button>
+            <button class="ai-chip" onclick="aiQuick('Debug this Lua script. Find any errors, bugs, or potential issues and suggest fixes.')">
+              Debug
+            </button>
+            <button class="ai-chip" onclick="aiQuick('Review this Lua script for code quality, best practices, and potential improvements.')">
+              Review
+            </button>
+          </div>
+        </div>
+
+        <!-- Response area -->
+        <div class="card">
+          <div class="card-title">AI Response</div>
+          <div id="ai-response-area" class="empty">
+            AI analysis will appear here. Select a quick action or enter a custom prompt below.
+          </div>
+          <div class="ai-custom">
+            <input id="ai-prompt" type="text" placeholder="Ask the AI anything about your script..." onkeydown="if(event.key==='Enter')sendAiPrompt()" />
+            <button class="btn btn-primary" onclick="sendAiPrompt()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Ask AI
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 3: RECENT SCRIPTS
+    =========================== -->
+    <div class="section-wrap" id="sec-recent">
+      <div class="page-header">
+        <div class="page-title">Recent Scripts</div>
+        <div class="page-subtitle">Your last 10 hidden scripts, stored locally.</div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
+        <button class="btn btn-danger btn-sm" onclick="clearHistory()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Clear History
+        </button>
+      </div>
+
+      <div id="history-list" class="history-list"></div>
+    </div>
+
+    <!-- ===========================
+         SECTION 4: INFORMATION
+    =========================== -->
+    <div class="section-wrap" id="sec-info">
+      <div class="page-header">
+        <div class="page-title">Information</div>
+        <div class="page-subtitle">Learn how Lua Hider works, usage guides, and credits.</div>
+      </div>
+
+      <div class="info-grid">
+        <!-- How It Works -->
+        <div class="info-card" onclick="openModal('how')">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="info-card-title">How It Works</div>
+          <div class="info-card-desc">Understand the script hiding mechanism and security features.</div>
+        </div>
+
+        <!-- Usage Guide -->
+        <div class="info-card" onclick="openModal('usage')">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div class="info-card-title">Usage Guide</div>
+          <div class="info-card-desc">Step-by-step instructions on how to use Lua Hider effectively.</div>
+        </div>
+
+        <!-- Credits -->
+        <div class="info-card" onclick="openModal('credits')">
+          <div class="info-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div class="info-card-title">Credits</div>
+          <div class="info-card-desc">Created by Sttar Albiola. Find links to social media and Roblox.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 5: SETTINGS
+    =========================== -->
+    <div class="section-wrap" id="sec-settings">
+      <div class="page-header">
+        <div class="page-title">Settings</div>
+        <div class="page-subtitle">System status and session statistics.</div>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Theme Card -->
+        <div class="card">
+          <div class="card-title">Theme</div>
+          <div class="stat-row">
+            <span class="stat-label">Color Scheme</span>
+            <span class="badge badge-cyan">Dark Futuristic</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Accent Color</span>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span style="width:14px;height:14px;border-radius:3px;background:var(--cyan);display:inline-block;box-shadow:0 0 8px var(--cyan);"></span>
+              <span class="stat-value">#00FFCC</span>
+            </span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Font</span>
+            <span class="stat-value">Inter + Source Code Pro</span>
+          </div>
+        </div>
+
+        <!-- System Status Card -->
+        <div class="card">
+          <div class="card-title">System Status</div>
+          <div class="stat-row">
+            <span class="stat-label">Backend API</span>
+            <span id="settings-status-badge" class="badge badge-cyan">Checking...</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">API Endpoint</span>
+            <span class="stat-value" style="font-size:0.72rem;">lua-hider.onrender.com</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Last Checked</span>
+            <span class="stat-value" id="last-checked">—</span>
+          </div>
+          <div style="margin-top:12px;">
+            <button class="btn btn-ghost btn-sm" onclick="checkBackend()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+              Refresh Status
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload Statistics Card -->
+        <div class="card">
+          <div class="card-title">Upload Statistics</div>
+          <div class="stat-row">
+            <span class="stat-label">Total Uploads (Session)</span>
+            <span class="stat-value" id="stat-uploads">0</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Last Upload</span>
+            <span class="stat-value" id="stat-last-upload">Never</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Saved in History</span>
+            <span class="stat-value" id="stat-history">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ===========================
+     MODALS
+=========================== -->
+
+<!-- How It Works Modal -->
+<div id="modal-how" style="display:none;" class="modal-backdrop" onclick="closeModalOutside(event,'modal-how')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">How It Works</div>
+      <button class="modal-close" onclick="closeModal('modal-how')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <h3>Unique Script IDs</h3>
+      <p>When you upload a Lua script, Lua Hider generates a unique 8-character alphanumeric ID. This ID is tied to your script and stored securely on the backend server.</p>
+
+      <div class="glow-divider"></div>
+
+      <h3>Browser Protection</h3>
+      <p>When someone opens the script URL in a regular web browser, they are redirected to a Rickroll page. This protects the script contents from being viewed by unauthorized users browsing to the URL manually.</p>
+
+      <div class="glow-divider"></div>
+
+      <h3>Roblox Executor Access</h3>
+      <p>Roblox script executors use a raw HTTP request to fetch the Lua script directly. The backend detects executor requests by checking headers and serves the raw Lua code, bypassing the Rickroll protection. This allows legitimate use inside Roblox.</p>
+
+      <div class="glow-divider"></div>
+
+      <h3>Loadstring Format</h3>
+      <p>The generated loadstring follows the standard Roblox executor format:</p>
+      <div class="code-block" style="font-size:0.78rem;margin-top:8px;">loadstring(game:HttpGet("https://lua-hider.onrender.com/raw/lua/:id/download"))()</div>
+    </div>
+  </div>
+</div>
+
+<!-- Usage Guide Modal -->
+<div id="modal-usage" style="display:none;" class="modal-backdrop" onclick="closeModalOutside(event,'modal-usage')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Usage Guide</div>
+      <button class="modal-close" onclick="closeModal('modal-usage')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <h3>Step-by-Step Instructions</h3>
+      <ol>
+        <li><strong>Paste your Lua script</strong> into the Script Editor text area.</li>
+        <li><strong>Click "Hide Script"</strong> to upload it to the Lua Hider server.</li>
+        <li><strong>Copy the generated loadstring</strong> from the result block that appears.</li>
+        <li><strong>Open your Roblox executor</strong> (e.g. Synapse X, KRNL, Fluxus, etc.).</li>
+        <li><strong>Paste the loadstring</strong> into the executor's script input box.</li>
+        <li><strong>Click Execute</strong> in your executor to run the hidden script.</li>
+      </ol>
+
+      <div class="glow-divider"></div>
+
+      <h3>Tips</h3>
+      <p>Your recent scripts are saved in the "Recent Scripts" section for quick access. You can copy any previous loadstring from there without re-uploading.</p>
+      <p>Use the AI Assistant to analyze, debug, or review your scripts before hiding them for best results.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Credits Modal -->
+<div id="modal-credits" style="display:none;" class="modal-backdrop" onclick="closeModalOutside(event,'modal-credits')">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Credits</div>
+      <button class="modal-close" onclick="closeModal('modal-credits')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <h3>Creator</h3>
+      <p>Lua Hider was created by <strong style="color:var(--cyan);">Sttar Albiola</strong>. A Roblox developer and script enthusiast.</p>
+
+      <div class="glow-divider"></div>
+
+      <h3>Social Links</h3>
+
+      <div class="credit-item">
+        <div class="credit-info">
+          <span class="credit-platform">Facebook</span>
+          <span class="credit-value">facebook.com/sttaralbiola05</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="copyText('https://www.facebook.com/sttaralbiola05','Facebook link copied!')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <div class="credit-item">
+        <div class="credit-info">
+          <span class="credit-platform">Discord</span>
+          <span class="credit-value">sttar_albiola</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="copyText('sttar_albiola','Discord username copied!')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+
+      <div class="credit-item">
+        <div class="credit-info">
+          <span class="credit-platform">Roblox</span>
+          <span class="credit-value">0nlyymikii</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="copyText('0nlyymikii','Roblox username copied!')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===========================
+     JAVASCRIPT
+=========================== -->
+<script>
+  /* =============================================
+     CONSTANTS & STATE
+  ============================================= */
+  const BASE_URL = 'https://lua-hider.onrender.com';
+  let sessionUploads = 0;
+  let lastUploadTime = null;
+  let backendOnline = null;
+
+  /* =============================================
+     SIDEBAR / NAVIGATION
+  ============================================= */
+  function openSidebar() {
+    document.getElementById('sidebar').classList.add('open');
+    document.getElementById('overlay').classList.add('active');
+  }
+
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+  }
+
+  function switchSection(id, el) {
+    // Hide all sections
+    document.querySelectorAll('.section-wrap').forEach(s => s.classList.remove('active'));
+    // Deactivate all nav items
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    // Show target section
+    document.getElementById('sec-' + id).classList.add('active');
+    // Activate nav item
+    if (el) el.classList.add('active');
+    // Close sidebar on mobile
+    closeSidebar();
+    // If recent scripts, refresh list
+    if (id === 'recent') renderHistory();
+    if (id === 'settings') updateStats();
+  }
+
+  /* =============================================
+     EDITOR — CHARACTER / LINE COUNT
+  ============================================= */
+  const luaEditor = document.getElementById('lua-editor');
+
+  luaEditor.addEventListener('input', () => {
+    const val = luaEditor.value;
+    document.getElementById('char-count').textContent = val.length + ' chars';
+    const lines = val === '' ? 1 : val.split('\n').length;
+    document.getElementById('line-count').textContent = lines + ' line' + (lines !== 1 ? 's' : '');
+  });
+
+  // Tab key support in editor
+  luaEditor.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const start = luaEditor.selectionStart;
+      const end = luaEditor.selectionEnd;
+      luaEditor.value = luaEditor.value.substring(0, start) + '  ' + luaEditor.value.substring(end);
+      luaEditor.selectionStart = luaEditor.selectionEnd = start + 2;
+      luaEditor.dispatchEvent(new Event('input'));
+    }
+  });
+
+  /* =============================================
+     HIDE SCRIPT
+  ============================================= */
+  async function hideScript() {
+    const code = luaEditor.value.trim();
+
+    if (!code) {
+      showToast('Please enter a Lua script first.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('hide-btn');
+    const originalHTML = btn.innerHTML;
+
+    // Loading state
+    btn.innerHTML = '<div class="spinner"></div> Hiding...';
+    btn.disabled = true;
+
+    try {
+      const response = await fetch(BASE_URL + '/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code })
+      });
+
+      if (!response.ok) {
+        throw new Error('Server returned ' + response.status);
+      }
+
+      const data = await response.json();
+
+      if (!data.url) {
+        throw new Error('Invalid response from server.');
+      }
+
+      const fullUrl = BASE_URL + data.url;
+      const loadstring = `loadstring(game:HttpGet("${fullUrl}"))()`;
+
+      // Display result
+      const resultBlock = document.getElementById('result-block');
+      const resultCode = document.getElementById('result-code');
+      resultCode.textContent = loadstring;
+      resultBlock.style.display = 'block';
+      resultBlock.classList.add('flash');
+      setTimeout(() => resultBlock.classList.remove('flash'), 1700);
+
+      // Save to history
+      saveHistory(loadstring, fullUrl);
+
+      // Update stats
+      sessionUploads++;
+      lastUploadTime = new Date();
+
+      showToast('Script hidden successfully!', 'success');
+
+    } catch (err) {
+      showToast('Upload failed: ' + err.message, 'error');
+    } finally {
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    }
+  }
+
+  function clearEditor() {
+    luaEditor.value = '';
+    document.getElementById('char-count').textContent = '0 chars';
+    document.getElementById('line-count').textContent = '1 line';
+    document.getElementById('result-block').style.display = 'none';
+  }
+
+  function copyResult() {
+    const text = document.getElementById('result-code').textContent;
+    copyText(text, 'Loadstring copied to clipboard!');
+  }
+
+  /* =============================================
+     AI ASSISTANT
+  ============================================= */
+  async function aiQuick(prompt) {
+    await callAI(prompt);
+  }
+
+  async function sendAiPrompt() {
+    const promptInput = document.getElementById('ai-prompt');
+    const prompt = promptInput.value.trim();
+    if (!prompt) {
+      showToast('Enter a prompt first.', 'error');
+      return;
+    }
+    promptInput.value = '';
+    await callAI(prompt);
+  }
+
+  async function callAI(prompt) {
+    const code = luaEditor.value.trim();
+    const responseArea = document.getElementById('ai-response-area');
+
+    // Show typing indicator
+    responseArea.className = '';
+    responseArea.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+
+    try {
+      const response = await fetch(BASE_URL + '/api/ai/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, code })
+      });
+
+      if (!response.ok) {
+        throw new Error('AI service returned ' + response.status);
+      }
+
+      const data = await response.json();
+
+      if (!data.result) {
+        throw new Error('No response from AI.');
+      }
+
+      // Format response: handle code blocks
+      responseArea.innerHTML = formatAIResponse(data.result);
+
+    } catch (err) {
+      responseArea.innerHTML = '<span style="color:var(--red);">Error: ' + escapeHTML(err.message) + '</span>';
+      showToast('AI request failed: ' + err.message, 'error');
+    }
+  }
+
+  function formatAIResponse(text) {
+    // Simple formatter: escape HTML, preserve line breaks, style code blocks
+    let escaped = escapeHTML(text);
+    // Style inline code (backtick)
+    escaped = escaped.replace(/`([^`]+)`/g, '<code style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:\'Source Code Pro\',monospace;font-size:0.8rem;color:var(--cyan)">$1</code>');
+    // Triple backtick code blocks
+    escaped = escaped.replace(/```[\w]*\n?([\s\S]*?)```/g, '<pre style="background:var(--bg3);border:1px solid var(--border-accent);border-radius:6px;padding:12px;font-family:\'Source Code Pro\',monospace;font-size:0.78rem;color:var(--cyan);overflow-x:auto;margin:8px 0;white-space:pre-wrap;">$1</pre>');
+    // Line breaks
+    escaped = escaped.replace(/\n/g, '<br>');
+    return escaped;
+  }
+
+  function escapeHTML(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* =============================================
+     HISTORY
+  ============================================= */
+  function getHistory() {
+    try {
+      return JSON.parse(localStorage.getItem('luahider_history') || '[]');
+    } catch { return []; }
+  }
+
+  function saveHistory(loadstring, url) {
+    let history = getHistory();
+    history.unshift({
+      ts: new Date().toISOString(),
+      loadstring,
+      url
+    });
+    // Keep last 10
+    history = history.slice(0, 10);
+    localStorage.setItem('luahider_history', JSON.stringify(history));
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    const history = getHistory();
+
+    if (history.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          No scripts hidden yet. Go to the Script Editor to get started.
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = history.map((item, idx) => `
+      <div class="history-item" id="hist-item-${idx}">
+        <div class="history-item-top">
+          <span class="history-ts">
+            <svg style="width:12px;height:12px;display:inline;vertical-align:-1px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${formatDate(item.ts)}
+          </span>
+          <div class="history-actions">
+            <button class="btn btn-ghost btn-sm" onclick="copyText('${escapeAttr(item.loadstring)}','Loadstring copied!')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              Copy
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="deleteHistoryItem(${idx})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              Delete
+            </button>
+          </div>
+        </div>
+        <div class="history-url">${escapeHTML(item.loadstring)}</div>
+      </div>
+    `).join('');
+  }
+
+  function deleteHistoryItem(idx) {
+    let history = getHistory();
+    history.splice(idx, 1);
+    localStorage.setItem('luahider_history', JSON.stringify(history));
+    renderHistory();
+    updateStats();
+    showToast('Entry deleted.', 'info');
+  }
+
+  function clearHistory() {
+    if (getHistory().length === 0) {
+      showToast('History is already empty.', 'info');
+      return;
+    }
+    localStorage.removeItem('luahider_history');
+    renderHistory();
+    updateStats();
+    showToast('History cleared.', 'info');
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escapeAttr(str) {
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+
+  /* =============================================
+     MODALS
+  ============================================= */
+  function openModal(type) {
+    const map = { how: 'modal-how', usage: 'modal-usage', credits: 'modal-credits' };
+    const el = document.getElementById(map[type]);
+    if (el) {
+      el.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  function closeModal(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+
+  function closeModalOutside(e, id) {
+    if (e.target === e.currentTarget) closeModal(id);
+  }
+
+  // ESC key closes modals
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      ['modal-how','modal-usage','modal-credits'].forEach(closeModal);
+    }
+  });
+
+  /* =============================================
+     TOAST NOTIFICATIONS
+  ============================================= */
+  function showToast(message, type = 'info') {
+    const container = document.getElementById('toast-container');
+    const icons = {
+      success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+      info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    toast.innerHTML = icons[type] + escapeHTML(message);
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('out');
+      setTimeout(() => toast.remove(), 300);
+    }, 3200);
+  }
+
+  /* =============================================
+     COPY UTILITY
+  ============================================= */
+  function copyText(text, msg) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copied!', 'success'));
+    } else {
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast(msg || 'Copied!', 'success');
+    }
+  }
+
+  /* =============================================
+     BACKEND STATUS CHECK
+  ============================================= */
+  async function checkBackend() {
+    const dot = document.getElementById('sidebar-status-dot');
+    const text = document.getElementById('sidebar-status-text');
+    const badge = document.getElementById('settings-status-badge');
+    const lastChecked = document.getElementById('last-checked');
+
+    text.textContent = 'Checking...';
+    if (badge) badge.textContent = 'Checking...';
+
+    try {
+      const res = await fetch(BASE_URL + '/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: '-- ping' }),
+        signal: AbortSignal.timeout(8000)
+      });
+
+      // Any response (even error) means backend is reachable
+      backendOnline = true;
+      dot.className = 'status-dot';
+      text.textContent = 'Backend Online';
+      if (badge) {
+        badge.textContent = 'Online';
+        badge.className = 'badge badge-green';
+      }
+    } catch (err) {
+      backendOnline = false;
+      dot.className = 'status-dot offline';
+      text.textContent = 'Backend Offline';
+      if (badge) {
+        badge.textContent = 'Offline';
+        badge.className = 'badge badge-red';
+      }
+    }
+
+    if (lastChecked) {
+      lastChecked.textContent = new Date().toLocaleTimeString();
+    }
+  }
+
+  /* =============================================
+     STATS UPDATE
+  ============================================= */
+  function updateStats() {
+    document.getElementById('stat-uploads').textContent = sessionUploads;
+    document.getElementById('stat-last-upload').textContent = lastUploadTime
+      ? lastUploadTime.toLocaleTimeString()
+      : 'Never';
+    document.getElementById('stat-history').textContent = getHistory().length;
+  }
+
+  /* =============================================
+     INIT
+  ============================================= */
+  (function init() {
+    // Check backend on load, then every 60s
+    checkBackend();
+    setInterval(checkBackend, 60000);
+
+    // Initial stats
+    updateStats();
+  })();
+</script>
+</body>
+</html>
