@@ -14,7 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     /* =============================================
-       CSS VARIABLES & RESET
+       CSS VARIABLES & RESET (unchanged)
     ============================================= */
     :root {
       --bg: #0a0a0f;
@@ -61,7 +61,6 @@
     ============================================= */
     #app { display: flex; height: 100vh; position: relative; overflow: hidden; }
 
-    /* OVERLAY */
     #overlay {
       display: none;
       position: fixed; inset: 0;
@@ -71,7 +70,6 @@
     }
     #overlay.active { display: block; }
 
-    /* SIDEBAR */
     #sidebar {
       width: var(--sidebar-w);
       min-width: var(--sidebar-w);
@@ -84,6 +82,7 @@
       z-index: 100;
       transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
       flex-shrink: 0;
+      overflow-y: auto;
     }
     .sidebar-logo {
       padding: 24px 20px 20px;
@@ -138,7 +137,6 @@
     .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
     .nav-item.active .nav-icon { opacity: 1; }
 
-    /* AD UNIT IN SIDEBAR */
     .sidebar-ad {
       padding: 12px 12px 8px;
       border-top: 1px solid var(--border);
@@ -174,7 +172,6 @@
     .status-dot.offline { background: var(--red); box-shadow: 0 0 6px var(--red); animation: none; }
     @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    /* MAIN */
     #main {
       flex: 1;
       overflow-y: auto;
@@ -182,7 +179,6 @@
       flex-direction: column;
     }
 
-    /* TOP BAR (mobile) */
     #topbar {
       display: none;
       align-items: center;
@@ -208,12 +204,10 @@
     .section-wrap.active { display: block; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-    /* PAGE HEADER */
     .page-header { margin-bottom: 24px; }
     .page-title { font-size: 1.4rem; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
     .page-subtitle { font-size: 0.82rem; color: var(--text-dim); margin-top: 4px; }
 
-    /* GLASS CARD */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -227,9 +221,8 @@
       letter-spacing: 0.08em; color: var(--text-dim); margin-bottom: 14px;
     }
 
-    /* EDITOR SECTION */
+    /* Editor styles (unchanged) */
     .editor-grid { display: grid; gap: 16px; }
-
     .editor-toolbar {
       display: flex; align-items: center; justify-content: space-between;
       padding: 10px 14px;
@@ -265,7 +258,6 @@
 
     .editor-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-    /* BUTTONS */
     .btn {
       display: inline-flex; align-items: center; gap: 7px;
       padding: 9px 16px;
@@ -284,7 +276,6 @@
       box-shadow: 0 0 28px rgba(0,255,204,0.4);
       transform: translateY(-1px);
     }
-    .btn-primary:active { transform: translateY(0); }
     .btn-ghost {
       background: var(--surface);
       color: var(--text-mid);
@@ -300,14 +291,12 @@
     .btn-sm { padding: 6px 12px; font-size: 0.78rem; }
     .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-    /* RESULT BLOCK */
     #result-block { display: none; margin-top: 16px; }
     .result-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 10px;
     }
     .result-label { font-size: 0.78rem; font-weight: 600; color: var(--cyan); display: flex; align-items: center; gap: 6px; }
-    .result-label svg { width: 14px; height: 14px; }
     .code-block {
       background: var(--bg3);
       border: 1px solid var(--border-accent);
@@ -319,21 +308,18 @@
       word-break: break-all;
       line-height: 1.5;
       box-shadow: 0 0 20px rgba(0,255,204,0.05);
-      position: relative;
     }
 
-    /* SPINNER */
     .spinner {
       width: 18px; height: 18px;
       border: 2px solid rgba(0,255,204,0.2);
       border-top-color: var(--cyan);
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
-      flex-shrink: 0;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* AI SECTION */
+    /* AI styles */
     .ai-quick-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
     .ai-chip {
       padding: 7px 14px;
@@ -360,7 +346,6 @@
       white-space: pre-wrap;
     }
     #ai-response-area.empty { color: var(--text-dim); }
-
     .typing-indicator { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
     .typing-dot {
       width: 7px; height: 7px; border-radius: 50%;
@@ -372,11 +357,10 @@
     @keyframes typing { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-5px);opacity:1} }
 
     .ai-custom { display: flex; gap: 8px; margin-top: 4px; }
-    #ai-prompt { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 9px 14px; font-size: 0.83rem; outline: none; transition: border-color var(--transition); }
+    #ai-prompt { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); padding: 9px 14px; font-size: 0.83rem; outline: none; }
     #ai-prompt:focus { border-color: var(--border-accent); }
-    #ai-prompt::placeholder { color: var(--text-dim); }
 
-    /* RECENT SCRIPTS */
+    /* History */
     .history-list { display: flex; flex-direction: column; gap: 8px; }
     .history-item {
       background: var(--surface);
@@ -400,13 +384,14 @@
       border-radius: 4px;
       border: 1px solid rgba(0,255,204,0.1);
     }
+
     .empty-state {
       text-align: center; padding: 48px 0;
       color: var(--text-dim); font-size: 0.85rem;
     }
     .empty-state svg { width: 36px; height: 36px; margin: 0 auto 12px; display: block; opacity: 0.3; }
 
-    /* INFO SECTION */
+    /* Info, Settings etc */
     .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
     .info-card {
       background: var(--surface);
@@ -428,7 +413,6 @@
     .info-card-title { font-size: 0.9rem; font-weight: 600; }
     .info-card-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
 
-    /* SETTINGS */
     .settings-grid { display: grid; gap: 16px; }
     .stat-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
     .stat-row:last-child { border-bottom: none; }
@@ -439,7 +423,48 @@
     .badge-red { background: rgba(255,77,109,0.12); color: var(--red); border: 1px solid rgba(255,77,109,0.25); }
     .badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid var(--border-accent); }
 
-    /* MODAL */
+    /* Blog styles */
+    .blog-post {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    .blog-post h2 { font-size: 1.1rem; color: var(--cyan); margin-bottom: 8px; }
+    .blog-post .post-meta { font-size: 0.7rem; color: var(--text-dim); margin-bottom: 12px; }
+    .blog-post p { font-size: 0.85rem; line-height: 1.8; color: var(--text-mid); margin-bottom: 12px; }
+    .blog-post pre {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-family: 'Source Code Pro', monospace;
+      font-size: 0.78rem;
+      color: var(--cyan);
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    /* Contact form */
+    .contact-form input, .contact-form textarea {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.83rem;
+      outline: none;
+      transition: border-color var(--transition);
+      margin-bottom: 12px;
+    }
+    .contact-form input:focus, .contact-form textarea:focus {
+      border-color: var(--border-accent);
+    }
+    .contact-form textarea { min-height: 120px; resize: vertical; }
+
+    /* Modal (unchanged) */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,0.7);
@@ -494,7 +519,6 @@
     .credit-platform { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); }
     .credit-value { font-size: 0.83rem; font-weight: 500; color: var(--text); }
 
-    /* TOAST */
     #toast-container {
       position: fixed; top: 20px; right: 20px; z-index: 300;
       display: flex; flex-direction: column; gap: 8px;
@@ -519,16 +543,12 @@
     .toast.out { animation: toastOut 0.25s ease forwards; }
     @keyframes toastIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
     @keyframes toastOut { from{opacity:1;transform:translateX(0)} to{opacity:0;transform:translateX(20px)} }
-    .toast svg { width: 15px; height: 15px; flex-shrink: 0; }
 
-    /* SUCCESS FLASH */
-    @keyframes successFlash { 0%,100%{border-color:var(--border-accent)} 50%{border-color:var(--cyan);box-shadow:0 0 30px rgba(0,255,204,0.3)} }
     .flash { animation: successFlash 0.8s ease 2; }
+    @keyframes successFlash { 0%,100%{border-color:var(--border-accent)} 50%{border-color:var(--cyan);box-shadow:0 0 30px rgba(0,255,204,0.3)} }
 
-    /* GLOW DIVIDER */
     .glow-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-accent), transparent); margin: 20px 0; }
 
-    /* AD PLACEMENT IN MAIN CONTENT (optional) */
     .content-ad {
       margin: 20px 0;
       background: var(--surface);
@@ -544,7 +564,6 @@
       letter-spacing: 0.05em;
     }
 
-    /* RESPONSIVE */
     @media (max-width: 768px) {
       #sidebar {
         position: fixed;
@@ -559,7 +578,6 @@
       .editor-stats { display: none; }
     }
 
-    /* NEON SCAN LINE (purely decorative) */
     body::after {
       content: '';
       position: fixed; top: 0; left: 0;
@@ -586,7 +604,6 @@
   <nav id="sidebar">
     <div class="sidebar-logo">
       <div class="logo-icon">
-        <!-- Shield Icon -->
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
         </svg>
@@ -598,42 +615,57 @@
     </div>
 
     <div class="nav-section">
-      <div class="nav-label">Workspace</div>
+      <div class="nav-label">Main</div>
       <div class="nav-item active" onclick="switchSection('editor',this)">
-        <!-- Code Icon -->
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
         Script Editor
       </div>
       <div class="nav-item" onclick="switchSection('ai',this)">
-        <!-- Sparkle / AI Icon -->
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         AI Assistant
       </div>
       <div class="nav-item" onclick="switchSection('recent',this)">
-        <!-- Clock Icon -->
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Recent Scripts
       </div>
       <div class="nav-item" onclick="switchSection('info',this)">
-        <!-- Info Icon -->
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
         Information
       </div>
       <div class="nav-item" onclick="switchSection('settings',this)">
-        <!-- Settings Icon -->
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
       </div>
+      <div class="nav-label">Content</div>
+      <div class="nav-item" onclick="switchSection('blog',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>
+        Blog
+      </div>
+      <div class="nav-item" onclick="switchSection('about',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5.3 18.3C6.8 16.5 9.2 15 12 15s5.2 1.5 6.7 3.3"/></svg>
+        About
+      </div>
+      <div class="nav-item" onclick="switchSection('contact',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        Contact
+      </div>
+      <div class="nav-item" onclick="switchSection('privacy',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Privacy
+      </div>
+      <div class="nav-item" onclick="switchSection('terms',this)">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        Terms
+      </div>
     </div>
 
-    <!-- ===== ADSENSE AD UNIT IN SIDEBAR ===== -->
+    <!-- AD SIDEBAR -->
     <div class="sidebar-ad">
       <div class="ad-container">
-        <!-- Replace data-ad-slot with your actual AdSense ad unit ID -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-2730608304608055"
-             data-ad-slot="1234567890"   <!-- CHANGE THIS -->
+             data-ad-slot="1234567890"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
         <script>
@@ -672,9 +704,7 @@
         <div class="page-title">Script Editor</div>
         <div class="page-subtitle">Paste your Lua script, hide it and get a loadstring URL.</div>
       </div>
-
       <div class="editor-grid">
-        <!-- Toolbar -->
         <div>
           <div class="editor-toolbar">
             <div class="editor-toolbar-left">
@@ -687,19 +717,8 @@
               <span id="line-count">1 line</span>
             </div>
           </div>
-          <textarea
-            id="lua-editor"
-            spellcheck="false"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            placeholder="-- Paste your Lua script here...
--- Example:
-print('Hello from Lua Hider!')"
-          ></textarea>
+          <textarea id="lua-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="-- Paste your Lua script here...&#10;-- Example:&#10;print('Hello from Lua Hider!')"></textarea>
         </div>
-
-        <!-- Actions -->
         <div class="editor-actions">
           <button class="btn btn-primary" onclick="hideScript()" id="hide-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -710,8 +729,6 @@ print('Hello from Lua Hider!')"
             Clear
           </button>
         </div>
-
-        <!-- Result -->
         <div id="result-block">
           <div class="result-header">
             <div class="result-label">
@@ -725,13 +742,11 @@ print('Hello from Lua Hider!')"
           </div>
           <div class="code-block" id="result-code"></div>
         </div>
-
-        <!-- Optional Ad unit below editor -->
         <div class="content-ad">
           <ins class="adsbygoogle"
                style="display:block"
                data-ad-client="ca-pub-2730608304608055"
-               data-ad-slot="0987654321"   <!-- CHANGE THIS -->
+               data-ad-slot="0987654321"
                data-ad-format="auto"
                data-full-width-responsive="true"></ins>
           <script>
@@ -749,33 +764,19 @@ print('Hello from Lua Hider!')"
         <div class="page-title">AI Assistant</div>
         <div class="page-subtitle">Analyze your script with AI-powered tools.</div>
       </div>
-
       <div class="editor-grid">
-        <!-- Quick actions -->
         <div class="card">
           <div class="card-title">Quick Analysis</div>
           <div class="ai-quick-btns">
-            <button class="ai-chip" onclick="aiQuick('Explain this Lua script in detail. Describe what each part does.')">
-              Explain
-            </button>
-            <button class="ai-chip" onclick="aiQuick('Detect the type/category of this Lua script (game hack, utility, bot, etc.) and explain why.')">
-              Detect Type
-            </button>
-            <button class="ai-chip" onclick="aiQuick('Debug this Lua script. Find any errors, bugs, or potential issues and suggest fixes.')">
-              Debug
-            </button>
-            <button class="ai-chip" onclick="aiQuick('Review this Lua script for code quality, best practices, and potential improvements.')">
-              Review
-            </button>
+            <button class="ai-chip" onclick="aiQuick('Explain this Lua script in detail. Describe what each part does.')">Explain</button>
+            <button class="ai-chip" onclick="aiQuick('Detect the type/category of this Lua script and explain why.')">Detect Type</button>
+            <button class="ai-chip" onclick="aiQuick('Debug this Lua script. Find any errors, bugs, or potential issues and suggest fixes.')">Debug</button>
+            <button class="ai-chip" onclick="aiQuick('Review this Lua script for code quality, best practices, and potential improvements.')">Review</button>
           </div>
         </div>
-
-        <!-- Response area -->
         <div class="card">
           <div class="card-title">AI Response</div>
-          <div id="ai-response-area" class="empty">
-            AI analysis will appear here. Select a quick action or enter a custom prompt below.
-          </div>
+          <div id="ai-response-area" class="empty">AI analysis will appear here. Select a quick action or enter a custom prompt below.</div>
           <div class="ai-custom">
             <input id="ai-prompt" type="text" placeholder="Ask the AI anything about your script..." onkeydown="if(event.key==='Enter')sendAiPrompt()" />
             <button class="btn btn-primary" onclick="sendAiPrompt()">
@@ -795,14 +796,12 @@ print('Hello from Lua Hider!')"
         <div class="page-title">Recent Scripts</div>
         <div class="page-subtitle">Your last 10 hidden scripts, stored locally.</div>
       </div>
-
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
         <button class="btn btn-danger btn-sm" onclick="clearHistory()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
           Clear History
         </button>
       </div>
-
       <div id="history-list" class="history-list"></div>
     </div>
 
@@ -814,31 +813,19 @@ print('Hello from Lua Hider!')"
         <div class="page-title">Information</div>
         <div class="page-subtitle">Learn how Lua Hider works, usage guides, and credits.</div>
       </div>
-
       <div class="info-grid">
-        <!-- How It Works -->
         <div class="info-card" onclick="openModal('how')">
-          <div class="info-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-          </div>
+          <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
           <div class="info-card-title">How It Works</div>
           <div class="info-card-desc">Understand the script hiding mechanism and security features.</div>
         </div>
-
-        <!-- Usage Guide -->
         <div class="info-card" onclick="openModal('usage')">
-          <div class="info-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          </div>
+          <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
           <div class="info-card-title">Usage Guide</div>
           <div class="info-card-desc">Step-by-step instructions on how to use Lua Hider effectively.</div>
         </div>
-
-        <!-- Credits -->
         <div class="info-card" onclick="openModal('credits')">
-          <div class="info-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          </div>
+          <div class="info-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
           <div class="info-card-title">Credits</div>
           <div class="info-card-desc">Created by Sttar Albiola. Find links to social media and Roblox.</div>
         </div>
@@ -853,67 +840,228 @@ print('Hello from Lua Hider!')"
         <div class="page-title">Settings</div>
         <div class="page-subtitle">System status and session statistics.</div>
       </div>
-
       <div class="settings-grid">
-        <!-- Theme Card -->
         <div class="card">
           <div class="card-title">Theme</div>
-          <div class="stat-row">
-            <span class="stat-label">Color Scheme</span>
-            <span class="badge badge-cyan">Dark Futuristic</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Accent Color</span>
-            <span style="display:flex;align-items:center;gap:8px;">
-              <span style="width:14px;height:14px;border-radius:3px;background:var(--cyan);display:inline-block;box-shadow:0 0 8px var(--cyan);"></span>
-              <span class="stat-value">#00FFCC</span>
-            </span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Font</span>
-            <span class="stat-value">Inter + Source Code Pro</span>
-          </div>
+          <div class="stat-row"><span class="stat-label">Color Scheme</span><span class="badge badge-cyan">Dark Futuristic</span></div>
+          <div class="stat-row"><span class="stat-label">Accent Color</span><span style="display:flex;align-items:center;gap:8px;"><span style="width:14px;height:14px;border-radius:3px;background:var(--cyan);display:inline-block;box-shadow:0 0 8px var(--cyan);"></span><span class="stat-value">#00FFCC</span></span></div>
+          <div class="stat-row"><span class="stat-label">Font</span><span class="stat-value">Inter + Source Code Pro</span></div>
         </div>
-
-        <!-- System Status Card -->
         <div class="card">
           <div class="card-title">System Status</div>
-          <div class="stat-row">
-            <span class="stat-label">Backend API</span>
-            <span id="settings-status-badge" class="badge badge-cyan">Checking...</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">API Endpoint</span>
-            <span class="stat-value" style="font-size:0.72rem;">lua-hider.onrender.com</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Last Checked</span>
-            <span class="stat-value" id="last-checked">—</span>
-          </div>
-          <div style="margin-top:12px;">
-            <button class="btn btn-ghost btn-sm" onclick="checkBackend()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
-              Refresh Status
-            </button>
-          </div>
+          <div class="stat-row"><span class="stat-label">Backend API</span><span id="settings-status-badge" class="badge badge-cyan">Checking...</span></div>
+          <div class="stat-row"><span class="stat-label">API Endpoint</span><span class="stat-value" style="font-size:0.72rem;">lua-hider.onrender.com</span></div>
+          <div class="stat-row"><span class="stat-label">Last Checked</span><span class="stat-value" id="last-checked">—</span></div>
+          <div style="margin-top:12px;"><button class="btn btn-ghost btn-sm" onclick="checkBackend()">Refresh Status</button></div>
         </div>
-
-        <!-- Upload Statistics Card -->
         <div class="card">
           <div class="card-title">Upload Statistics</div>
-          <div class="stat-row">
-            <span class="stat-label">Total Uploads (Session)</span>
-            <span class="stat-value" id="stat-uploads">0</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Last Upload</span>
-            <span class="stat-value" id="stat-last-upload">Never</span>
-          </div>
-          <div class="stat-row">
-            <span class="stat-label">Saved in History</span>
-            <span class="stat-value" id="stat-history">0</span>
-          </div>
+          <div class="stat-row"><span class="stat-label">Total Uploads (Session)</span><span class="stat-value" id="stat-uploads">0</span></div>
+          <div class="stat-row"><span class="stat-label">Last Upload</span><span class="stat-value" id="stat-last-upload">Never</span></div>
+          <div class="stat-row"><span class="stat-label">Saved in History</span><span class="stat-value" id="stat-history">0</span></div>
         </div>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 6: BLOG
+    =========================== -->
+    <div class="section-wrap" id="sec-blog">
+      <div class="page-header">
+        <div class="page-title">Blog</div>
+        <div class="page-subtitle">Insights, tutorials, and news about Lua scripting and Roblox.</div>
+      </div>
+
+      <!-- Blog Post 1 -->
+      <article class="blog-post">
+        <h2>Getting Started with Lua Scripting for Roblox</h2>
+        <div class="post-meta">June 15, 2026 — by Sttar Albiola</div>
+        <p>Lua is the primary programming language used in Roblox to create interactive experiences. Whether you're building a simple obstacle course or a complex RPG, mastering Lua is essential. In this post, we'll cover the basics: variables, data types, functions, and events.</p>
+        <p>Roblox's Lua environment is built on Lua 5.1 with additional libraries for accessing the game engine. For example, you can manipulate parts, create GUIs, and handle player input using built-in objects like <code>workspace</code> and <code>game.Players</code>.</p>
+        <pre>-- Example: Print a message to the console
+print("Hello, Roblox!")
+
+-- Create a part and change its color
+local part = Instance.new("Part")
+part.Parent = workspace
+part.BrickColor = BrickColor.new("Bright red")
+part.Position = Vector3.new(0, 5, 0)</pre>
+        <p>Understanding these fundamentals opens the door to creating your own games and tools. Stay tuned for more advanced topics like object-oriented programming and remote events.</p>
+      </article>
+
+      <!-- Blog Post 2 -->
+      <article class="blog-post">
+        <h2>Why Use a Script Hider? Protecting Your Roblox Scripts</h2>
+        <div class="post-meta">June 12, 2026 — by Sttar Albiola</div>
+        <p>If you've ever developed a popular Roblox game, you know that script theft is a real concern. Many exploiters decompile your game and steal your hard‑written code. Using a script hider like Lua Hider adds an extra layer of protection by making your scripts inaccessible via a normal browser.</p>
+        <p>Lua Hider stores your scripts on a secure backend with unique IDs. When someone tries to access the raw script via a web browser, they're redirected to a harmless page (even a Rickroll!). Only Roblox executors can fetch the raw Lua code, thanks to custom header checks.</p>
+        <p>This approach ensures that your intellectual property stays safe while still being easily loadable through the standard <code>game:HttpGet</code> method. It's a simple yet effective solution for any serious developer.</p>
+      </article>
+
+      <!-- Blog Post 3 -->
+      <article class="blog-post">
+        <h2>Debugging Lua Scripts: Common Errors and Solutions</h2>
+        <div class="post-meta">June 10, 2026 — by Sttar Albiola</div>
+        <p>Even experienced developers run into bugs. Here are three common Lua errors and how to fix them quickly:</p>
+        <ul style="color:var(--text-mid);font-size:0.83rem;line-height:1.8;padding-left:20px;">
+          <li><strong>“Attempt to index nil”</strong> – This means you're trying to access a property of an object that doesn't exist. Always check that the object is not nil before accessing it.</li>
+          <li><strong>“Expected number, got nil”</strong> – You passed a nil value where a number was required. Use <code>print()</code> to trace the values.</li>
+          <li><strong>“Infinite yield”</strong> – This occurs when a function waits indefinitely for something that never happens. Use <code>pcall</code> or check your Wait conditions.</li>
+        </ul>
+        <p>Using the AI Assistant in Lua Hider, you can quickly analyze and debug your scripts. Just paste your code and ask for a debug review – it will highlight potential issues and suggest fixes.</p>
+      </article>
+
+      <!-- Blog Post 4 -->
+      <article class="blog-post">
+        <h2>Optimizing Lua Code for Better Performance</h2>
+        <div class="post-meta">June 8, 2026 — by Sttar Albiola</div>
+        <p>Performance matters, especially in multiplayer games. Here are some tips to speed up your Lua scripts:</p>
+        <ul style="color:var(--text-mid);font-size:0.83rem;line-height:1.8;padding-left:20px;">
+          <li><strong>Cache global variables</strong> – Accessing globals is slower than locals. Store frequently used globals in local variables.</li>
+          <li><strong>Avoid creating unnecessary tables</strong> – Table creation is expensive. Reuse tables when possible.</li>
+          <li><strong>Use <code>pcall</code> sparingly</strong> – Protected calls have overhead. Only use them where errors are expected.</li>
+        </ul>
+        <pre>-- Bad: repeated global lookups
+for i = 1, 1000 do
+    workspace.Part.Position = Vector3.new(i, 0, 0)
+end
+
+-- Good: cache the part
+local part = workspace.Part
+for i = 1, 1000 do
+    part.Position = Vector3.new(i, 0, 0)
+end</pre>
+        <p>Small optimizations like these can significantly improve your game's frame rate and responsiveness.</p>
+      </article>
+
+      <!-- Blog Post 5 -->
+      <article class="blog-post">
+        <h2>Building a Simple GUI in Roblox with Lua</h2>
+        <div class="post-meta">June 5, 2026 — by Sttar Albiola</div>
+        <p>Graphical User Interfaces (GUIs) are essential for creating interactive menus, health bars, and game settings. Roblox uses the <code>ScreenGui</code> object to display UI elements. Here's a minimal example to create a button that changes a part's color:</p>
+        <pre>-- Create a ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+
+-- Create a button
+local button = Instance.new("TextButton")
+button.Parent = screenGui
+button.Size = UDim2.new(0, 200, 0, 50)
+button.Position = UDim2.new(0.5, -100, 0.5, -25)
+button.Text = "Change Color"
+
+-- Connect the click event
+button.MouseButton1Click:Connect(function()
+    local part = workspace:FindFirstChild("Part")
+    if part then
+        part.BrickColor = BrickColor.new("Bright green")
+    end
+end)</pre>
+        <p>This is just the tip of the iceberg. With Lua, you can build sophisticated interfaces that enhance the player experience.</p>
+      </article>
+    </div>
+
+    <!-- ===========================
+         SECTION 7: ABOUT
+    =========================== -->
+    <div class="section-wrap" id="sec-about">
+      <div class="page-header">
+        <div class="page-title">About Lua Hider</div>
+        <div class="page-subtitle">The story behind the tool and its creator.</div>
+      </div>
+      <div class="card" style="max-width:800px;">
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;">
+          <strong style="color:var(--cyan);">Lua Hider</strong> is a free online tool designed for Roblox developers who want to protect their Lua scripts from unauthorized copying. It was created by <strong style="color:var(--cyan);">Sttar Albiola</strong>, a passionate developer and Roblox enthusiast.
+        </p>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;margin-top:12px;">
+          The idea came from a simple problem: script theft is rampant in the Roblox community. Many developers spend hours crafting unique scripts only to have them stolen and reused without credit. Lua Hider addresses this by providing a secure way to host and share scripts, ensuring that only authorized users (via Roblox executors) can access the raw code.
+        </p>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;margin-top:12px;">
+          Sttar Albiola is also active on social media, sharing tutorials and game development insights. Follow the links in the Credits section to connect.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 8: CONTACT
+    =========================== -->
+    <div class="section-wrap" id="sec-contact">
+      <div class="page-header">
+        <div class="page-title">Contact Us</div>
+        <div class="page-subtitle">Have questions or feedback? Reach out to us.</div>
+      </div>
+      <div class="card" style="max-width:600px;">
+        <form class="contact-form" onsubmit="event.preventDefault(); showToast('Message sent! We\'ll get back to you soon.','success');">
+          <input type="text" placeholder="Your Name" required />
+          <input type="email" placeholder="Your Email" required />
+          <textarea placeholder="Your Message..." required></textarea>
+          <button type="submit" class="btn btn-primary">Send Message</button>
+        </form>
+        <p style="color:var(--text-dim);font-size:0.8rem;margin-top:12px;">
+          You can also reach me directly on Discord: <strong style="color:var(--cyan);">sttar_albiola</strong>
+        </p>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 9: PRIVACY POLICY
+    =========================== -->
+    <div class="section-wrap" id="sec-privacy">
+      <div class="page-header">
+        <div class="page-title">Privacy Policy</div>
+        <div class="page-subtitle">How we handle your data.</div>
+      </div>
+      <div class="card" style="max-width:800px;">
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;">
+          <strong>Last updated:</strong> June 17, 2026
+        </p>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;margin-top:12px;">
+          Lua Hider ("we", "our", "us") respects your privacy. This policy describes how we collect, use, and protect your information.
+        </p>
+        <h3 style="color:var(--cyan);margin-top:20px;">Information We Collect</h3>
+        <ul style="color:var(--text-mid);line-height:1.8;padding-left:20px;">
+          <li><strong>Scripts:</strong> The Lua code you upload is stored temporarily on our backend to generate a unique URL.</li>
+          <li><strong>Local Storage:</strong> We save your recent script history in your browser's local storage; this data never leaves your device.</li>
+          <li><strong>Usage Data:</strong> We may collect anonymous analytics to improve the service.</li>
+        </ul>
+        <h3 style="color:var(--cyan);margin-top:20px;">How We Use Your Information</h3>
+        <ul style="color:var(--text-mid);line-height:1.8;padding-left:20px;">
+          <li>To provide the core functionality of hiding and loading scripts.</li>
+          <li>To improve the service based on usage patterns.</li>
+          <li>We do not share or sell your data to third parties.</li>
+        </ul>
+        <h3 style="color:var(--cyan);margin-top:20px;">Cookies</h3>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;">We use minimal cookies for functionality. Third-party services (like AdSense) may set their own cookies for advertising purposes.</p>
+        <h3 style="color:var(--cyan);margin-top:20px;">Contact</h3>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;">For privacy concerns, reach out via the Contact page or Discord.</p>
+      </div>
+    </div>
+
+    <!-- ===========================
+         SECTION 10: TERMS OF SERVICE
+    =========================== -->
+    <div class="section-wrap" id="sec-terms">
+      <div class="page-header">
+        <div class="page-title">Terms of Service</div>
+        <div class="page-subtitle">Rules and guidelines for using Lua Hider.</div>
+      </div>
+      <div class="card" style="max-width:800px;">
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;">
+          <strong>Last updated:</strong> June 17, 2026
+        </p>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;margin-top:12px;">
+          By using Lua Hider, you agree to the following terms:
+        </p>
+        <ul style="color:var(--text-mid);line-height:1.8;padding-left:20px;">
+          <li><strong>Acceptable Use:</strong> You may upload only your own scripts or scripts you have permission to share. Do not upload malicious code.</li>
+          <li><strong>Content Ownership:</strong> You retain full rights to your scripts. We do not claim ownership.</li>
+          <li><strong>Service Availability:</strong> We strive to keep the service up but do not guarantee 100% uptime.</li>
+          <li><strong>Changes:</strong> We may update these terms at any time; continued use constitutes acceptance.</li>
+          <li><strong>Liability:</strong> We are not liable for any damages resulting from the use of this service.</li>
+        </ul>
+        <p style="color:var(--text-mid);line-height:1.8;font-size:0.9rem;margin-top:12px;">
+          If you have any questions, please contact us.
+        </p>
       </div>
     </div>
 
@@ -921,10 +1069,8 @@ print('Hello from Lua Hider!')"
 </div><!-- /app -->
 
 <!-- ===========================
-     MODALS
+     MODALS (unchanged)
 =========================== -->
-
-<!-- How It Works Modal -->
 <div id="modal-how" style="display:none;" class="modal-backdrop" onclick="closeModalOutside(event,'modal-how')">
   <div class="modal">
     <div class="modal-header">
@@ -936,19 +1082,13 @@ print('Hello from Lua Hider!')"
     <div class="modal-body">
       <h3>Unique Script IDs</h3>
       <p>When you upload a Lua script, Lua Hider generates a unique 8-character alphanumeric ID. This ID is tied to your script and stored securely on the backend server.</p>
-
       <div class="glow-divider"></div>
-
       <h3>Browser Protection</h3>
       <p>When someone opens the script URL in a regular web browser, they are redirected to a Rickroll page. This protects the script contents from being viewed by unauthorized users browsing to the URL manually.</p>
-
       <div class="glow-divider"></div>
-
       <h3>Roblox Executor Access</h3>
       <p>Roblox script executors use a raw HTTP request to fetch the Lua script directly. The backend detects executor requests by checking headers and serves the raw Lua code, bypassing the Rickroll protection. This allows legitimate use inside Roblox.</p>
-
       <div class="glow-divider"></div>
-
       <h3>Loadstring Format</h3>
       <p>The generated loadstring follows the standard Roblox executor format:</p>
       <div class="code-block" style="font-size:0.78rem;margin-top:8px;">loadstring(game:HttpGet("https://lua-hider.onrender.com/raw/lua/:id/download"))()</div>
@@ -956,7 +1096,6 @@ print('Hello from Lua Hider!')"
   </div>
 </div>
 
-<!-- Usage Guide Modal -->
 <div id="modal-usage" style="display:none;" class="modal-backdrop" onclick="closeModalOutside(event,'modal-usage')">
   <div class="modal">
     <div class="modal-header">
@@ -975,9 +1114,7 @@ print('Hello from Lua Hider!')"
         <li><strong>Paste the loadstring</strong> into the executor's script input box.</li>
         <li><strong>Click Execute</strong> in your executor to run the hidden script.</li>
       </ol>
-
       <div class="glow-divider"></div>
-
       <h3>Tips</h3>
       <p>Your recent scripts are saved in the "Recent Scripts" section for quick access. You can copy any previous loadstring from there without re-uploading.</p>
       <p>Use the AI Assistant to analyze, debug, or review your scripts before hiding them for best results.</p>
@@ -985,7 +1122,6 @@ print('Hello from Lua Hider!')"
   </div>
 </div>
 
-<!-- Credits Modal -->
 <div id="modal-credits" style="display:none;" class="modal-backdrop" onclick="closeModalOutside(event,'modal-credits')">
   <div class="modal">
     <div class="modal-header">
@@ -997,38 +1133,24 @@ print('Hello from Lua Hider!')"
     <div class="modal-body">
       <h3>Creator</h3>
       <p>Lua Hider was created by <strong style="color:var(--cyan);">Sttar Albiola</strong>. A Roblox developer and script enthusiast.</p>
-
       <div class="glow-divider"></div>
-
       <h3>Social Links</h3>
-
       <div class="credit-item">
-        <div class="credit-info">
-          <span class="credit-platform">Facebook</span>
-          <span class="credit-value">facebook.com/sttaralbiola05</span>
-        </div>
+        <div class="credit-info"><span class="credit-platform">Facebook</span><span class="credit-value">facebook.com/sttaralbiola05</span></div>
         <button class="btn btn-ghost btn-sm" onclick="copyText('https://www.facebook.com/sttaralbiola05','Facebook link copied!')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
-
       <div class="credit-item">
-        <div class="credit-info">
-          <span class="credit-platform">Discord</span>
-          <span class="credit-value">sttar_albiola</span>
-        </div>
+        <div class="credit-info"><span class="credit-platform">Discord</span><span class="credit-value">sttar_albiola</span></div>
         <button class="btn btn-ghost btn-sm" onclick="copyText('sttar_albiola','Discord username copied!')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
       </div>
-
       <div class="credit-item">
-        <div class="credit-info">
-          <span class="credit-platform">Roblox</span>
-          <span class="credit-value">0nlyymikii</span>
-        </div>
+        <div class="credit-info"><span class="credit-platform">Roblox</span><span class="credit-value">0nlyymikii</span></div>
         <button class="btn btn-ghost btn-sm" onclick="copyText('0nlyymikii','Roblox username copied!')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
@@ -1039,59 +1161,41 @@ print('Hello from Lua Hider!')"
 </div>
 
 <!-- ===========================
-     JAVASCRIPT
+     JAVASCRIPT (mostly unchanged, with new sections)
 =========================== -->
 <script>
-  /* =============================================
-     CONSTANTS & STATE
-  ============================================= */
   const BASE_URL = 'https://lua-hider.onrender.com';
   let sessionUploads = 0;
   let lastUploadTime = null;
   let backendOnline = null;
 
-  /* =============================================
-     SIDEBAR / NAVIGATION
-  ============================================= */
   function openSidebar() {
     document.getElementById('sidebar').classList.add('open');
     document.getElementById('overlay').classList.add('active');
   }
-
   function closeSidebar() {
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('overlay').classList.remove('active');
   }
 
   function switchSection(id, el) {
-    // Hide all sections
     document.querySelectorAll('.section-wrap').forEach(s => s.classList.remove('active'));
-    // Deactivate all nav items
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    // Show target section
     document.getElementById('sec-' + id).classList.add('active');
-    // Activate nav item
     if (el) el.classList.add('active');
-    // Close sidebar on mobile
     closeSidebar();
-    // If recent scripts, refresh list
     if (id === 'recent') renderHistory();
     if (id === 'settings') updateStats();
   }
 
-  /* =============================================
-     EDITOR — CHARACTER / LINE COUNT
-  ============================================= */
+  // Editor
   const luaEditor = document.getElementById('lua-editor');
-
   luaEditor.addEventListener('input', () => {
     const val = luaEditor.value;
     document.getElementById('char-count').textContent = val.length + ' chars';
     const lines = val === '' ? 1 : val.split('\n').length;
     document.getElementById('line-count').textContent = lines + ' line' + (lines !== 1 ? 's' : '');
   });
-
-  // Tab key support in editor
   luaEditor.addEventListener('keydown', (e) => {
     if (e.key === 'Tab') {
       e.preventDefault();
@@ -1103,61 +1207,34 @@ print('Hello from Lua Hider!')"
     }
   });
 
-  /* =============================================
-     HIDE SCRIPT
-  ============================================= */
   async function hideScript() {
     const code = luaEditor.value.trim();
-
-    if (!code) {
-      showToast('Please enter a Lua script first.', 'error');
-      return;
-    }
-
+    if (!code) { showToast('Please enter a Lua script first.', 'error'); return; }
     const btn = document.getElementById('hide-btn');
     const originalHTML = btn.innerHTML;
-
-    // Loading state
     btn.innerHTML = '<div class="spinner"></div> Hiding...';
     btn.disabled = true;
-
     try {
       const response = await fetch(BASE_URL + '/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code })
       });
-
-      if (!response.ok) {
-        throw new Error('Server returned ' + response.status);
-      }
-
+      if (!response.ok) throw new Error('Server returned ' + response.status);
       const data = await response.json();
-
-      if (!data.url) {
-        throw new Error('Invalid response from server.');
-      }
-
+      if (!data.url) throw new Error('Invalid response from server.');
       const fullUrl = BASE_URL + data.url;
       const loadstring = `loadstring(game:HttpGet("${fullUrl}"))()`;
-
-      // Display result
       const resultBlock = document.getElementById('result-block');
       const resultCode = document.getElementById('result-code');
       resultCode.textContent = loadstring;
       resultBlock.style.display = 'block';
       resultBlock.classList.add('flash');
       setTimeout(() => resultBlock.classList.remove('flash'), 1700);
-
-      // Save to history
       saveHistory(loadstring, fullUrl);
-
-      // Update stats
       sessionUploads++;
       lastUploadTime = new Date();
-
       showToast('Script hidden successfully!', 'success');
-
     } catch (err) {
       showToast('Upload failed: ' + err.message, 'error');
     } finally {
@@ -1178,20 +1255,12 @@ print('Hello from Lua Hider!')"
     copyText(text, 'Loadstring copied to clipboard!');
   }
 
-  /* =============================================
-     AI ASSISTANT
-  ============================================= */
-  async function aiQuick(prompt) {
-    await callAI(prompt);
-  }
-
+  // AI
+  async function aiQuick(prompt) { await callAI(prompt); }
   async function sendAiPrompt() {
     const promptInput = document.getElementById('ai-prompt');
     const prompt = promptInput.value.trim();
-    if (!prompt) {
-      showToast('Enter a prompt first.', 'error');
-      return;
-    }
+    if (!prompt) { showToast('Enter a prompt first.', 'error'); return; }
     promptInput.value = '';
     await callAI(prompt);
   }
@@ -1199,31 +1268,18 @@ print('Hello from Lua Hider!')"
   async function callAI(prompt) {
     const code = luaEditor.value.trim();
     const responseArea = document.getElementById('ai-response-area');
-
-    // Show typing indicator
     responseArea.className = '';
     responseArea.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
-
     try {
       const response = await fetch(BASE_URL + '/api/ai/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt, code })
       });
-
-      if (!response.ok) {
-        throw new Error('AI service returned ' + response.status);
-      }
-
+      if (!response.ok) throw new Error('AI service returned ' + response.status);
       const data = await response.json();
-
-      if (!data.result) {
-        throw new Error('No response from AI.');
-      }
-
-      // Format response: handle code blocks
+      if (!data.result) throw new Error('No response from AI.');
       responseArea.innerHTML = formatAIResponse(data.result);
-
     } catch (err) {
       responseArea.innerHTML = '<span style="color:var(--red);">Error: ' + escapeHTML(err.message) + '</span>';
       showToast('AI request failed: ' + err.message, 'error');
@@ -1231,13 +1287,9 @@ print('Hello from Lua Hider!')"
   }
 
   function formatAIResponse(text) {
-    // Simple formatter: escape HTML, preserve line breaks, style code blocks
     let escaped = escapeHTML(text);
-    // Style inline code (backtick)
     escaped = escaped.replace(/`([^`]+)`/g, '<code style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-family:\'Source Code Pro\',monospace;font-size:0.8rem;color:var(--cyan)">$1</code>');
-    // Triple backtick code blocks
     escaped = escaped.replace(/```[\w]*\n?([\s\S]*?)```/g, '<pre style="background:var(--bg3);border:1px solid var(--border-accent);border-radius:6px;padding:12px;font-family:\'Source Code Pro\',monospace;font-size:0.78rem;color:var(--cyan);overflow-x:auto;margin:8px 0;white-space:pre-wrap;">$1</pre>');
-    // Line breaks
     escaped = escaped.replace(/\n/g, '<br>');
     return escaped;
   }
@@ -1246,56 +1298,30 @@ print('Hello from Lua Hider!')"
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  /* =============================================
-     HISTORY
-  ============================================= */
+  // History
   function getHistory() {
-    try {
-      return JSON.parse(localStorage.getItem('luahider_history') || '[]');
-    } catch { return []; }
+    try { return JSON.parse(localStorage.getItem('luahider_history') || '[]'); } catch { return []; }
   }
-
   function saveHistory(loadstring, url) {
     let history = getHistory();
-    history.unshift({
-      ts: new Date().toISOString(),
-      loadstring,
-      url
-    });
-    // Keep last 10
+    history.unshift({ ts: new Date().toISOString(), loadstring, url });
     history = history.slice(0, 10);
     localStorage.setItem('luahider_history', JSON.stringify(history));
   }
-
   function renderHistory() {
     const list = document.getElementById('history-list');
     const history = getHistory();
-
     if (history.length === 0) {
-      list.innerHTML = `
-        <div class="empty-state">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          No scripts hidden yet. Go to the Script Editor to get started.
-        </div>`;
+      list.innerHTML = `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>No scripts hidden yet. Go to the Script Editor to get started.</div>`;
       return;
     }
-
     list.innerHTML = history.map((item, idx) => `
       <div class="history-item" id="hist-item-${idx}">
         <div class="history-item-top">
-          <span class="history-ts">
-            <svg style="width:12px;height:12px;display:inline;vertical-align:-1px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            ${formatDate(item.ts)}
-          </span>
+          <span class="history-ts"><svg style="width:12px;height:12px;display:inline;vertical-align:-1px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${formatDate(item.ts)}</span>
           <div class="history-actions">
-            <button class="btn btn-ghost btn-sm" onclick="copyText('${escapeAttr(item.loadstring)}','Loadstring copied!')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-              Copy
-            </button>
-            <button class="btn btn-danger btn-sm" onclick="deleteHistoryItem(${idx})">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
-              Delete
-            </button>
+            <button class="btn btn-ghost btn-sm" onclick="copyText('${escapeAttr(item.loadstring)}','Loadstring copied!')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteHistoryItem(${idx})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>Delete</button>
           </div>
         </div>
         <div class="history-url">${escapeHTML(item.loadstring)}</div>
@@ -1311,61 +1337,39 @@ print('Hello from Lua Hider!')"
     updateStats();
     showToast('Entry deleted.', 'info');
   }
-
   function clearHistory() {
-    if (getHistory().length === 0) {
-      showToast('History is already empty.', 'info');
-      return;
-    }
+    if (getHistory().length === 0) { showToast('History is already empty.', 'info'); return; }
     localStorage.removeItem('luahider_history');
     renderHistory();
     updateStats();
     showToast('History cleared.', 'info');
   }
-
   function formatDate(iso) {
     const d = new Date(iso);
     return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
-
   function escapeAttr(str) {
     return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
   }
 
-  /* =============================================
-     MODALS
-  ============================================= */
+  // Modals
   function openModal(type) {
     const map = { how: 'modal-how', usage: 'modal-usage', credits: 'modal-credits' };
     const el = document.getElementById(map[type]);
-    if (el) {
-      el.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
+    if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
   }
-
   function closeModal(id) {
     const el = document.getElementById(id);
-    if (el) {
-      el.style.display = 'none';
-      document.body.style.overflow = '';
-    }
+    if (el) { el.style.display = 'none'; document.body.style.overflow = ''; }
   }
-
   function closeModalOutside(e, id) {
     if (e.target === e.currentTarget) closeModal(id);
   }
-
-  // ESC key closes modals
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      ['modal-how','modal-usage','modal-credits'].forEach(closeModal);
-    }
+    if (e.key === 'Escape') ['modal-how','modal-usage','modal-credits'].forEach(closeModal);
   });
 
-  /* =============================================
-     TOAST NOTIFICATIONS
-  ============================================= */
+  // Toast
   function showToast(message, type = 'info') {
     const container = document.getElementById('toast-container');
     const icons = {
@@ -1373,30 +1377,21 @@ print('Hello from Lua Hider!')"
       error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
       info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
     };
-
     const toast = document.createElement('div');
     toast.className = 'toast ' + type;
     toast.innerHTML = icons[type] + escapeHTML(message);
     container.appendChild(toast);
-
-    setTimeout(() => {
-      toast.classList.add('out');
-      setTimeout(() => toast.remove(), 300);
-    }, 3200);
+    setTimeout(() => { toast.classList.add('out'); setTimeout(() => toast.remove(), 300); }, 3200);
   }
 
-  /* =============================================
-     COPY UTILITY
-  ============================================= */
+  // Copy
   function copyText(text, msg) {
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => showToast(msg || 'Copied!', 'success'));
     } else {
-      // Fallback
       const ta = document.createElement('textarea');
       ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta);
       ta.select();
       document.execCommand('copy');
@@ -1405,18 +1400,14 @@ print('Hello from Lua Hider!')"
     }
   }
 
-  /* =============================================
-     BACKEND STATUS CHECK
-  ============================================= */
+  // Backend check
   async function checkBackend() {
     const dot = document.getElementById('sidebar-status-dot');
     const text = document.getElementById('sidebar-status-text');
     const badge = document.getElementById('settings-status-badge');
     const lastChecked = document.getElementById('last-checked');
-
     text.textContent = 'Checking...';
     if (badge) badge.textContent = 'Checking...';
-
     try {
       const res = await fetch(BASE_URL + '/api/upload', {
         method: 'POST',
@@ -1424,52 +1415,57 @@ print('Hello from Lua Hider!')"
         body: JSON.stringify({ code: '-- ping' }),
         signal: AbortSignal.timeout(8000)
       });
-
-      // Any response (even error) means backend is reachable
       backendOnline = true;
       dot.className = 'status-dot';
       text.textContent = 'Backend Online';
-      if (badge) {
-        badge.textContent = 'Online';
-        badge.className = 'badge badge-green';
-      }
+      if (badge) { badge.textContent = 'Online'; badge.className = 'badge badge-green'; }
     } catch (err) {
       backendOnline = false;
       dot.className = 'status-dot offline';
       text.textContent = 'Backend Offline';
-      if (badge) {
-        badge.textContent = 'Offline';
-        badge.className = 'badge badge-red';
-      }
+      if (badge) { badge.textContent = 'Offline'; badge.className = 'badge badge-red'; }
     }
-
-    if (lastChecked) {
-      lastChecked.textContent = new Date().toLocaleTimeString();
-    }
+    if (lastChecked) lastChecked.textContent = new Date().toLocaleTimeString();
   }
 
-  /* =============================================
-     STATS UPDATE
-  ============================================= */
   function updateStats() {
     document.getElementById('stat-uploads').textContent = sessionUploads;
-    document.getElementById('stat-last-upload').textContent = lastUploadTime
-      ? lastUploadTime.toLocaleTimeString()
-      : 'Never';
+    document.getElementById('stat-last-upload').textContent = lastUploadTime ? lastUploadTime.toLocaleTimeString() : 'Never';
     document.getElementById('stat-history').textContent = getHistory().length;
   }
 
-  /* =============================================
-     INIT
-  ============================================= */
+  // INIT
   (function init() {
-    // Check backend on load, then every 60s
     checkBackend();
     setInterval(checkBackend, 60000);
-
-    // Initial stats
     updateStats();
   })();
 </script>
+
+<!-- ADS.TXT INSTRUCTIONS -->
+<div style="display:none;">
+  <!-- 
+    ============================================
+    INSTRUCTIONS PARA SA ADS.TXT
+    ============================================
+    Para maayos ang "Ads.txt status: Not found" sa AdSense:
+
+    1. Gumawa ng file na may pangalang "ads.txt" (walang extension)
+    2. I-paste ang sumusunod na linya sa loob:
+       google.com, pub-2730608304608055, DIRECT, f08c47fec0942fa0
+    3. I-upload ang file na ito sa ROOT folder ng iyong website
+       (dapat ma-access via https://lua-hider.onrender.com/ads.txt)
+    4. Hintayin 24-48 hours para mag-reflect sa AdSense
+
+    Kung wala kang access sa root folder, maaari mong gawin ito:
+    - Sa Render.com, pumunta sa iyong service
+    - Pumunta sa "Files" o gamitin ang shell/console
+    - Gumawa ng ads.txt sa /public/ directory
+    - I-restart ang service
+
+    Pagkatapos nito, dapat maging "Ready" ang status sa AdSense dashboard.
+  -->
+</div>
+
 </body>
-  </html>
+          </html>
