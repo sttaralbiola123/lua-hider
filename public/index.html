@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lua Hider — Script Vault</title>
+
+  <!-- ===== ADSENSE ===== -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2730608304608055"
+     crossorigin="anonymous"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -132,6 +137,26 @@
     }
     .nav-icon { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
     .nav-item.active .nav-icon { opacity: 1; }
+
+    /* AD UNIT IN SIDEBAR */
+    .sidebar-ad {
+      padding: 12px 12px 8px;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+    .sidebar-ad .ad-container {
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
     .sidebar-footer {
       padding: 16px;
@@ -503,6 +528,22 @@
     /* GLOW DIVIDER */
     .glow-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border-accent), transparent); margin: 20px 0; }
 
+    /* AD PLACEMENT IN MAIN CONTENT (optional) */
+    .content-ad {
+      margin: 20px 0;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-sm);
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
     /* RESPONSIVE */
     @media (max-width: 768px) {
       #sidebar {
@@ -582,6 +623,22 @@
         <!-- Settings Icon -->
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
+      </div>
+    </div>
+
+    <!-- ===== ADSENSE AD UNIT IN SIDEBAR ===== -->
+    <div class="sidebar-ad">
+      <div class="ad-container">
+        <!-- Replace data-ad-slot with your actual AdSense ad unit ID -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2730608304608055"
+             data-ad-slot="1234567890"   <!-- CHANGE THIS -->
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
       </div>
     </div>
 
@@ -667,6 +724,19 @@ print('Hello from Lua Hider!')"
             </button>
           </div>
           <div class="code-block" id="result-code"></div>
+        </div>
+
+        <!-- Optional Ad unit below editor -->
+        <div class="content-ad">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-2730608304608055"
+               data-ad-slot="0987654321"   <!-- CHANGE THIS -->
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>
+               (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
         </div>
       </div>
     </div>
@@ -1402,4 +1472,4 @@ print('Hello from Lua Hider!')"
   })();
 </script>
 </body>
-</html>
+  </html>
